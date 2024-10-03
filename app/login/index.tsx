@@ -4,7 +4,6 @@ import SignIn from '../../components/signIn';
 import { Text, View } from '@/components/Themed';
 
 import { useTheme } from '@react-navigation/native';
-import SignUp from '@/components/signUp';
 
 
 export default function Login() {
