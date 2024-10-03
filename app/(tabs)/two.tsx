@@ -1,14 +1,228 @@
-import { StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  Button,
+  Modal,
+  Text,
+  TextInput,
+  Alert,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import { Calendar, DateData } from 'react-native-calendars';
+import { View } from '@/components/Themed';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+interface Event {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  time: string;
+}
 
-export default function TabTwoScreen() {
+export default function CalendarScreen() {
+  const [selectedDate, setSelectedDate] = useState('');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    // Load events from storage or API if needed
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = () => {
+    // Fetch events from local storage or backend
+    // For now, we'll start with an empty array
+    setEvents([]);
+  };
+
+  const onDayPress = (day: DateData) => {
+    setSelectedDate(day.dateString);
+    // Handle date selection if needed
+  };
+
+  const onCalendarButtonPress = () => {
+    if (!selectedDate) {
+      Alert.alert('No Date Selected', 'Please select a date on the calendar.');
+      return;
+    }
+    setModalVisible(true);
+    setEventTitle('');
+    setEventDescription('');
+    setEditingEventId(null);
+  };
+
+  const handleSaveEvent = () => {
+    if (!eventTitle) {
+      Alert.alert('Title Required', 'Please enter an event title.');
+      return;
+    }
+
+    if (editingEventId) {
+      // Update existing event
+      const updatedEvents = events.map((event) =>
+        event.id === editingEventId
+          ? { ...event, title: eventTitle, description: eventDescription }
+          : event
+      );
+      setEvents(updatedEvents);
+    } else {
+      // Add new event
+      const newEvent = {
+        id: Date.now().toString(),
+        date: selectedDate,
+        title: eventTitle,
+        description: eventDescription,
+      };
+      setEvents([...events, newEvent]);
+    }
+
+    // Reset the form and close the modal
+    setModalVisible(false);
+    setEventTitle('');
+    setEventDescription('');
+    setEditingEventId(null);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEventTitle(event.title);
+    setEventDescription(event.description);
+    setEditingEventId(event.id);
+    setSelectedDate(event.date);
+    setModalVisible(true);
+  };
+
+  const handleDeleteEvent = (id: string) => {
+    Alert.alert('Delete Event', 'Are you sure you want to delete this event?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          const updatedEvents = events.filter((event) => event.id !== id);
+          setEvents(updatedEvents);
+        },
+      },
+    ]);
+  };
+
+  const getMarkedDates = () => {
+    const markedDates: { [key: string]: any } = {};
+
+    events.forEach((event) => {
+      if (markedDates[event.date]) {
+        // If the date already exists, add another dot
+        if (markedDates[event.date].dots) {
+          markedDates[event.date].dots.push({ color: 'blue' });
+        } else {
+          markedDates[event.date].dots = [{ color: 'blue' }];
+        }
+      } else {
+        markedDates[event.date] = {
+          dots: [{ color: 'blue' }],
+        };
+      }
+    });
+
+    // Add selected date
+    if (selectedDate) {
+      markedDates[selectedDate] = {
+        ...(markedDates[selectedDate] || {}),
+        selected: true,
+        selectedColor: '#2e78b7',
+      };
+    }
+
+    // Mark today's date
+    markedDates[today] = {
+      ...(markedDates[today] || {}),
+      customStyles: {
+        text: {
+          color: 'red',
+          fontWeight: 'bold',
+        },
+      },
+    };
+
+    return markedDates;
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <Calendar
+        onDayPress={onDayPress}
+        markedDates={getMarkedDates()}
+        markingType={'multi-dot'}
+        theme={{
+          arrowColor: '#2e78b7',
+          // Remove 'todayTextColor' if it's interfering
+        }}
+      />
+      <Button title="Add Event" onPress={onCalendarButtonPress} />
+
+      {/* Display events for the selected date */}
+      {selectedDate && (
+        <View style={styles.eventsContainer}>
+          <Text style={styles.eventsTitle}>Events on {selectedDate}:</Text>
+          {events.filter((event) => event.date === selectedDate).length === 0 ? (
+            <Text style={styles.noEventsText}>No events for this date.</Text>
+          ) : (
+            <FlatList
+              data={events.filter((event) => event.date === selectedDate)}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.eventItem}>
+                  <Text style={styles.eventTitle}>{item.title}</Text>
+                  <Text>{item.description}</Text>
+                  <View style={styles.eventButtons}>
+                    <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                      <Text style={styles.editButton}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                      <Text style={styles.deleteButton}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            />
+          )}
+        </View>
+      )}
+
+      {/* Modal for adding/editing events */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>
+            {editingEventId ? 'Edit Event' : 'Add Event'}
+          </Text>
+          <Text style={styles.modalLabel}>Date: {selectedDate}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Event Title"
+            value={eventTitle}
+            onChangeText={setEventTitle}
+          />
+          <TextInput
+            style={[styles.input, { height: 80 }]}
+            placeholder="Event Description"
+            value={eventDescription}
+            onChangeText={setEventDescription}
+            multiline
+          />
+          <Button title="Save Event" onPress={handleSaveEvent} />
+          <Button title="Cancel" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -16,16 +230,60 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  title: {
-    fontSize: 20,
+  eventsContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  eventsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  noEventsText: {
+    fontStyle: 'italic',
+    color: '#666',
+  },
+  eventItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  eventTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  eventButtons: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  editButton: {
+    marginRight: 15,
+    color: 'blue',
+  },
+  deleteButton: {
+    color: 'red',
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  modalTitle: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginVertical: 10,
+    fontSize: 16,
   },
 });
