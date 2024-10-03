@@ -3,11 +3,15 @@ import { StyleSheet } from 'react-native';
 import SignUp from '../../components/SignUp';
 import { Text, View } from '@/components/Themed';
 
+import { useTheme } from '@react-navigation/native';
+
+
 export default function CreateAccount() {
+
+    const { colors } = useTheme();
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Create Account</Text>
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <SignUp />
         </View>
     );

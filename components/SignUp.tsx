@@ -1,15 +1,19 @@
 // SignUp.tsx
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';  // Import Firebase auth
+import { useTheme } from '@react-navigation/native';
 
 const SignUp: React.FC = () => {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+
+    const { colors } = useTheme();
 
     const handleSignUp = async () => {
         if (password !== confirmPassword) {
@@ -23,8 +27,6 @@ const SignUp: React.FC = () => {
             const user = userCredential.user;
             setSuccess('Account created successfully!');
             setError(null);
-            console.log('User signed up successfully:', user);
-            // You can navigate to another screen after successful sign-up
         } catch (error: any) {
             setError(error.message);
         }
@@ -36,6 +38,14 @@ const SignUp: React.FC = () => {
 
             {error && <Text style={styles.errorText}>{error}</Text>}
             {success && <Text style={styles.successText}>{success}</Text>}
+
+            <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={email}
+                onChangeText={setName}
+                autoCapitalize="none"
+            />
 
             <TextInput
                 style={styles.input}
@@ -62,7 +72,11 @@ const SignUp: React.FC = () => {
                 secureTextEntry
             />
 
-            <Button title="Sign Up" onPress={handleSignUp} />
+            <TouchableOpacity
+                style={[styles.button, { backgroundColor: colors.primary }]}
+                onPress={handleSignUp}>
+                <Text style={styles.buttonText}>Create Account</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -72,20 +86,34 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         padding: 20,
-        backgroundColor: '#fff',
     },
     title: {
-        fontSize: 24,
+        fontSize: 36,
         marginBottom: 20,
         textAlign: 'center',
     },
     input: {
-        height: 40,
-        borderColor: 'gray',
+        height: 50,
+        width: 220,
+        borderColor: '#000000',
         borderWidth: 1,
         marginBottom: 12,
         paddingHorizontal: 10,
         borderRadius: 5,
+        backgroundColor: '#FCF7F2'
+    },
+    button: {
+        marginTop: 30,
+        backgroundColor: '#FCF7F2',
+        textAlign: 'center',
+        padding: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#000000',
+    },
+    buttonText: {
+        color: "#000000",
+        textAlign: 'center',
     },
     errorText: {
         color: 'red',

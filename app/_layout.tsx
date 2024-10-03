@@ -8,6 +8,19 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
+export const ourTheme = {
+  ...DefaultTheme, // Extend the default light theme
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#FCF7F2',  // Custom primary color for buttons, etc.
+    background: '#6E8E8A',  // Custom background color
+    text: '#000000',  // Custom text color
+    card: '#ffffff',  // Color for cards, headers
+    border: '#cccccc',  // Border color for various components
+    notification: '#ff9800',  // Color for notifications (like badges)
+  },
+};
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -49,7 +62,7 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={ourTheme}>
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
