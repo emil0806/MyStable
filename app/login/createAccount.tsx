@@ -1,19 +1,18 @@
 import { StyleSheet } from 'react-native';
 
-import SignIn from '../../components/signIn';
+import SignUp from '../../components/signUp';
 import { Text, View } from '@/components/Themed';
 
 import { useTheme } from '@react-navigation/native';
-import SignUp from '@/components/signUp';
 
 
-export default function Login() {
+export default function CreateAccount() {
 
     const { colors } = useTheme();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <SignIn />
+            <SignUp />
         </View>
     );
 }

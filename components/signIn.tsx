@@ -1,50 +1,33 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '@react-navigation/native';
+import { useRouter, Link } from 'expo-router';
 
-const SignUp: React.FC = () => {
-    const [name, setName] = useState('');
+const SignIn: React.FC = () => {
+    const router = useRouter();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
 
     const { colors } = useTheme();
 
-    const handleSignUp = async () => {
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
-        try {
-            // Create user with email and password using Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            setSuccess('Account created successfully!');
-            setError(null);
-        } catch (error: any) {
-            setError(error.message);
-        }
+    const handleLogin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+            .then(userCredential => {
+                // User logged in
+                const user = userCredential.user;
+                router.push('/(tabs)');
+            })
+            .catch(error => {
+                console.error(error);
+            });
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Sign Up</Text>
-
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {success && <Text style={styles.successText}>{success}</Text>}
-
-            <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={name}
-                onChangeText={setName}
-                autoCapitalize="none"
-            />
+            <Text style={styles.title}>Login</Text>
 
             <TextInput
                 style={styles.input}
@@ -63,19 +46,14 @@ const SignUp: React.FC = () => {
                 secureTextEntry
             />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-            />
-
             <TouchableOpacity
                 style={[styles.button, { backgroundColor: colors.primary }]}
-                onPress={handleSignUp}>
-                <Text style={styles.buttonText}>Create Account</Text>
+                onPress={handleLogin}>
+                <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
+
+            <Text>Not already a user?</Text>
+            <Link push href="/login/createAccount">Create Account</Link>
         </View>
     );
 };
@@ -126,4 +104,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SignUp;
+export default SignIn;
