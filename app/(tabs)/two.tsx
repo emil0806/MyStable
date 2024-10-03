@@ -142,42 +142,21 @@ export default function CalendarScreen() {
   const getMarkedDates = () => {
     const markedDates: { [key: string]: any } = {};
 
-    // Include dates with user events
+    // Mark dates with user-created events only
     events.forEach((event) => {
       if (markedDates[event.date]) {
         // If the date already exists, add another dot
         if (markedDates[event.date].dots) {
-          markedDates[event.date].dots.push({ color: 'blue' });
+          markedDates[event.date].dots.push({ color: 'red' });
         } else {
-          markedDates[event.date].dots = [{ color: 'blue' }];
+          markedDates[event.date].dots = [{ color: 'red' }];
         }
       } else {
         markedDates[event.date] = {
-          dots: [{ color: 'blue' }],
-        };
-      }
-    });
-
-    // Include default events for all dates in the current month
-    const currentMonth = new Date().getMonth(); // 0-based month index
-    const currentYear = new Date().getFullYear();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day)
-        .toISOString()
-        .split('T')[0];
-
-      if (markedDates[date]) {
-        // Date already has user events, add an additional dot
-        markedDates[date].dots.push({ color: 'red' });
-      } else {
-        // Date has only default events
-        markedDates[date] = {
           dots: [{ color: 'red' }],
         };
       }
-    }
+    });
 
     // Add selected date
     if (selectedDate) {
