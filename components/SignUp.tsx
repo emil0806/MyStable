@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
 import { useTheme } from '@react-navigation/native';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { useRouter } from 'expo-router';
 
 const SignUp: React.FC = () => {
+    const router = useRouter();
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,6 +19,7 @@ const SignUp: React.FC = () => {
     const { colors } = useTheme();
 
     const handleSignUp = async () => {
+
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -26,6 +31,18 @@ const SignUp: React.FC = () => {
             const user = userCredential.user;
             setSuccess('Account created successfully!');
             setError(null);
+            try {
+                // Add a new document with a generated ID
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    horses: [],
+                });
+                router.push('/(tabs)');
+            } catch (e) {
+                setError('Error adding user data: ' + e);
+            }
         } catch (error: any) {
             setError(error.message);
         }
@@ -52,6 +69,15 @@ const SignUp: React.FC = () => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
+                autoCapitalize="none"
+            />
+
+            <TextInput
+                style={styles.input}
+                placeholder="Phone number"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
                 autoCapitalize="none"
             />
 

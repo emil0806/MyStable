@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
-import { addDoc, collection } from 'firebase/firestore';  // Firestore imports
-import { db } from '../firebaseConfig';  // Import Firestore database
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 export default function AddHorse() {
     const [name, setName] = useState('');
     const [breed, setBreed] = useState('');
     const [age, setAge] = useState('');
-    const [description, setDescription] = useState('');
+    const [color, setColor] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
     const handleAddHorse = async () => {
         // Validate inputs
-        if (!name || !breed || !age || !description) {
+        if (!name || !breed || !age || !color) {
             setError('All fields are required');
             return;
         }
@@ -24,15 +24,14 @@ export default function AddHorse() {
                 name: name,
                 breed: breed,
                 age: parseInt(age),  // Convert age to number
-                description: description,
-                createdAt: new Date(),  // Timestamp for when the horse was added
+                color: color,
             });
 
             // Reset fields
             setName('');
             setBreed('');
             setAge('');
-            setDescription('');
+            setColor('');
             setError('');
             setSuccessMessage('Horse data added successfully!');
         } catch (e) {
@@ -68,9 +67,9 @@ export default function AddHorse() {
             />
             <TextInput
                 style={styles.input}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
+                placeholder="Color"
+                value={color}
+                onChangeText={setColor}
             />
             <Button title="Add Horse" onPress={handleAddHorse} />
         </View>
