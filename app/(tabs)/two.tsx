@@ -26,6 +26,7 @@ export default function CalendarScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
+  const [eventTime, setEventTime] = useState('');
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
@@ -54,6 +55,7 @@ export default function CalendarScreen() {
     setModalVisible(true);
     setEventTitle('');
     setEventDescription('');
+    setEventTime('');
     setEditingEventId(null);
   };
 
@@ -67,7 +69,7 @@ export default function CalendarScreen() {
       // Update existing event
       const updatedEvents = events.map((event) =>
         event.id === editingEventId
-          ? { ...event, title: eventTitle, description: eventDescription }
+          ? { ...event, title: eventTitle, description: eventDescription, time: eventTime }
           : event
       );
       setEvents(updatedEvents);
@@ -78,6 +80,7 @@ export default function CalendarScreen() {
         date: selectedDate,
         title: eventTitle,
         description: eventDescription,
+        time: eventTime,
       };
       setEvents([...events, newEvent]);
     }
@@ -86,12 +89,14 @@ export default function CalendarScreen() {
     setModalVisible(false);
     setEventTitle('');
     setEventDescription('');
+    setEventTime('');
     setEditingEventId(null);
   };
 
   const handleEditEvent = (event: Event) => {
     setEventTitle(event.title);
     setEventDescription(event.description);
+    setEventTime(event.time);
     setEditingEventId(event.id);
     setSelectedDate(event.date);
     setModalVisible(true);
@@ -111,9 +116,33 @@ export default function CalendarScreen() {
     ]);
   };
 
+  const getDefaultEventsForDate = (date: string): Event[] => [
+    {
+      id: `default-1-${date}`,
+      date,
+      title: 'Turnout',
+      description: '',
+      time: '08:00',
+    },
+    {
+      id: `default-2-${date}`,
+      date,
+      title: 'Bring-in',
+      description: '',
+      time: '19:30',
+    },
+  ];
+
+  const getEventsForDate = (date: string): Event[] => {
+    const defaultEvents = getDefaultEventsForDate(date);
+    const userEvents = events.filter((event) => event.date === date);
+    return [...defaultEvents, ...userEvents];
+  };
+
   const getMarkedDates = () => {
     const markedDates: { [key: string]: any } = {};
 
+    // Include dates with user events
     events.forEach((event) => {
       if (markedDates[event.date]) {
         // If the date already exists, add another dot
@@ -128,6 +157,27 @@ export default function CalendarScreen() {
         };
       }
     });
+
+    // Include default events for all dates in the current month
+    const currentMonth = new Date().getMonth(); // 0-based month index
+    const currentYear = new Date().getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day)
+        .toISOString()
+        .split('T')[0];
+
+      if (markedDates[date]) {
+        // Date already has user events, add an additional dot
+        markedDates[date].dots.push({ color: 'red' });
+      } else {
+        // Date has only default events
+        markedDates[date] = {
+          dots: [{ color: 'red' }],
+        };
+      }
+    }
 
     // Add selected date
     if (selectedDate) {
@@ -169,24 +219,28 @@ export default function CalendarScreen() {
       {selectedDate && (
         <View style={styles.eventsContainer}>
           <Text style={styles.eventsTitle}>Events on {selectedDate}:</Text>
-          {events.filter((event) => event.date === selectedDate).length === 0 ? (
+          {getEventsForDate(selectedDate).length === 0 ? (
             <Text style={styles.noEventsText}>No events for this date.</Text>
           ) : (
             <FlatList
-              data={events.filter((event) => event.date === selectedDate)}
+              data={getEventsForDate(selectedDate)}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.eventItem}>
-                  <Text style={styles.eventTitle}>{item.title}</Text>
+                  <Text style={styles.eventTitle}>
+                    {item.title} {item.time ? `at ${item.time}` : ''}
+                  </Text>
                   <Text>{item.description}</Text>
-                  <View style={styles.eventButtons}>
-                    <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                      <Text style={styles.editButton}>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
-                      <Text style={styles.deleteButton}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
+                  {item.id.startsWith('default-') ? null : (
+                    <View style={styles.eventButtons}>
+                      <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                        <Text style={styles.editButton}>Edit</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                        <Text style={styles.deleteButton}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               )}
             />
@@ -211,6 +265,12 @@ export default function CalendarScreen() {
             placeholder="Event Title"
             value={eventTitle}
             onChangeText={setEventTitle}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Event Time (e.g., 14:30)"
+            value={eventTime}
+            onChangeText={setEventTime}
           />
           <TextInput
             style={[styles.input, { height: 80 }]}
