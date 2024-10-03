@@ -1,61 +1,75 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import HorseCard from '@/components/HorseCard';  // Import HorseCard
-import AddHorseButton from '@/components/AddHorseButton'; // Import AddHorseButton
-import ProfileCard from '@/components/ProfileCard'; // Import ProfileCard
-import AddHorseModal from '@/components/AddHorseModal'; // Import AddHorseModal
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import HorseCard from '@/components/HorseCard';
+import AddHorseButton from '@/components/AddHorseButton';
+import ProfileCard from '@/components/ProfileCard';
+import AddHorseModal from '@/components/AddHorseModal';
+import { auth, db } from '@/firebaseConfig';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
-export default function TabThreeScreen() {
-  const [hasHorse, setHasHorse] = useState(false); // To track if a horse is added
+export default function Profile() {
+  const [horses, setHorses] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
 
-  // State to store horse details entered by the user
-  const [horseDetails, setHorseDetails] = useState({
-    name: '',
-    breed: '',
-    dob: '',
-    color: '',
-  });
+  const fetchUserHorses = async () => {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
 
-  // Function to handle showing the modal
+      const horsesQuery = query(collection(db, 'horses'), where('ownerId', '==', userId));
+      const querySnapshot = await getDocs(horsesQuery);
+
+      const userHorses: any[] = [];
+      querySnapshot.forEach((doc) => {
+        userHorses.push({ id: doc.id, ...doc.data() });
+      });
+
+      setHorses(userHorses);
+    } catch (e) {
+      setError('Failed to fetch horses');
+    }
+  };
+
   const handleAddHorse = () => {
-    setModalVisible(true); // Open the modal when the button is pressed
+    setModalVisible(true);
   };
 
-  // Function to handle closing the modal
   const handleModalClose = () => {
-    setModalVisible(false); // Close the modal
+    setModalVisible(false);
   };
+  const handleSubmit = () => {
+    fetchUserHorses();
+    setModalVisible(false);
 
-  // Function to handle form submission and save user input
-  const handleHorseSubmit = (details) => {
-    setHorseDetails(details); // Update state with the user's input
-    setHasHorse(true); // Indicate that a horse has been added
-    setModalVisible(false); // Close the modal after submitting
-  };
+  }
+
+  useEffect(() => {
+    fetchUserHorses();
+  }, []);
 
   return (
     <View style={styles.container}>
       {/* Display ProfileCard */}
       <ProfileCard />
 
-      {/* Conditionally render HorseCard if a horse has been added */}
-      {hasHorse && (
-        <HorseCard
-          name={horseDetails.name} // Use dynamic user input
-          breed={horseDetails.breed} // Use dynamic user input
-          dob={horseDetails.dob} // Use dynamic user input
-          color={horseDetails.color} // Use dynamic user input
-          image="" // You can add image handling later
-          style={styles.horseCard} // Add style for spacing
-        />
-      )}
+      <FlatList
+        data={horses}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <HorseCard
+            name={item.name}
+            breed={item.breed}
+            dob={item.dob}
+            color={item.color}
+            image={item.image}
+          />
+        )}
+      />
 
-      {/* Display the Add Horse Button */}
       <AddHorseButton onPress={handleAddHorse} />
 
-      {/* Modal for adding horse details */}
-      <AddHorseModal visible={isModalVisible} onClose={handleModalClose} onSubmit={handleHorseSubmit} />
+      <AddHorseModal visible={isModalVisible} onClose={handleModalClose} onSubmit={handleSubmit} />
     </View>
   );
 }

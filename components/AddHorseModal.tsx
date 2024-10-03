@@ -1,31 +1,63 @@
+import { auth, db } from '../firebaseConfig';
+import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 
-const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit: (horseDetails: any) => void }> = ({ visible, onClose, onSubmit }) => {
-  const [horseName, setHorseName] = useState('');
+const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit: () => void }> = ({ visible, onClose, onSubmit }) => {
+  const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const [age, setAge] = useState('');
   const [color, setColor] = useState('');
+  const [feedings, setFeedings] = useState([{ food: '', quantity: '' }]);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // State for dynamically adding feeding options
-  const [feedingOptions, setFeedingOptions] = useState([{ name: '', weight: '' }]);
+  const handleAddHorse = async () => {
 
-  // Function to handle adding new feeding fields
-  const addFeedingOption = () => {
-    setFeedingOptions([...feedingOptions, { name: '', weight: '' }]); // Add a new empty field
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    // Validate inputs
+    if (!name || !breed || !age || !color) {
+      setError('All fields are required');
+      return;
+    }
+
+    try {
+      // Add a new document with a generated ID
+      await addDoc(collection(db, 'horses'), {
+        name: name,
+        breed: breed,
+        age: parseInt(age),  // Convert age to number
+        color: color,
+        ownerId: auth.currentUser?.uid,
+        feedings: feedings,
+      });
+
+      // Reset fields
+      setName('');
+      setBreed('');
+      setAge('');
+      setColor('');
+      setFeedings([{ food: '', quantity: '' }]);
+      setError('');
+      setSuccessMessage('Horse data added successfully!');
+    } catch (e) {
+      setError('Error adding horse data: ' + e);
+    }
+    onSubmit();
+    onClose();
   };
 
-  // Function to update feeding options dynamically
-  const updateFeedingOption = (index: number, field: string, value: string) => {
-    const updatedFeedingOptions = [...feedingOptions];
-    updatedFeedingOptions[index][field] = value;
-    setFeedingOptions(updatedFeedingOptions);
+  const handleAddFeedingRow = () => {
+    setFeedings([...feedings, { food: '', quantity: '' }]);
   };
 
-  const handleSubmit = () => {
-    const horseDetails = { name: horseName, breed, dob: age, color, feeding: feedingOptions };
-    onSubmit(horseDetails); // Pass horse details back to the parent component
-    onClose(); // Close the modal after submitting
+  const handleFeedingChange = (index: number, key: string, value: string) => {
+    const updatedFeedings = feedings.map((feeding, i) =>
+      i === index ? { ...feeding, [key]: value } : feeding
+    );
+    setFeedings(updatedFeedings);
   };
 
   return (
@@ -38,8 +70,8 @@ const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit:
           <TextInput
             style={styles.input}
             placeholder="Horse Name"
-            value={horseName}
-            onChangeText={setHorseName}
+            value={name}
+            onChangeText={setName}
           />
           <TextInput
             style={styles.input}
@@ -60,38 +92,35 @@ const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit:
             onChangeText={setColor}
           />
 
-          <Text style={styles.subTitle}>Feeding Options</Text>
-
-          {/* Dynamic feeding inputs */}
-          {feedingOptions.map((option, index) => (
-            <View key={index} style={styles.feedContainer}>
+          <Text style={styles.feedTitle}>Feeding Options</Text>
+          {feedings.map((feeding, index) => (
+            <View key={index} style={styles.feedingRow}>
               <TextInput
                 style={styles.feedInput}
-                placeholder="Food Name"
-                value={option.name}
-                onChangeText={(value) => updateFeedingOption(index, 'name', value)}
+                placeholder="Food Type"
+                value={feeding.food}
+                onChangeText={(value) => handleFeedingChange(index, 'food', value)}
               />
               <TextInput
                 style={styles.feedInput}
-                placeholder="Weight (kg)"
-                value={option.weight}
-                onChangeText={(value) => updateFeedingOption(index, 'weight', value)}
+                placeholder="Quantity (e.g., 2 kg)"
+                value={feeding.quantity}
+                onChangeText={(value) => handleFeedingChange(index, 'quantity', value)}
               />
             </View>
           ))}
 
-          {/* Button to add new feeding option */}
-          <TouchableOpacity style={styles.addButton} onPress={addFeedingOption}>
-            <Text style={styles.addButtonText}>+ Add another food</Text>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddFeedingRow}>
+            <Text style={styles.addButtonText}>+ Add Another Feeding Option</Text>
           </TouchableOpacity>
 
           {/* Submit and Cancel buttons */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={onClose}>
               <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleAddHorse}>
+              <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -168,4 +197,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  feedTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+  feedingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  }
 });
