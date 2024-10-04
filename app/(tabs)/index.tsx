@@ -1,6 +1,6 @@
-// index.tsx (Tab One)
+// app/(tabs)/index.tsx
 import { useEffect, useState } from "react";
-import { StyleSheet, ActivityIndicator } from "react-native";
+import { StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import {
   getFirestore,
   collection,
@@ -11,10 +11,12 @@ import {
 import { getAuth } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
 import CreateStableLink from "../stables/CreateStableLink"; // Importer CreateStableLink
+import { useTheme } from "@react-navigation/native";
 
 export default function TabOneScreen() {
   const [stable, setStable] = useState<any | null>(null); // Holder staldens data
   const [loading, setLoading] = useState(true);
+  const { colors } = useTheme();
 
   useEffect(() => {
     const fetchUserStable = async () => {
@@ -44,7 +46,7 @@ export default function TabOneScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -52,10 +54,18 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       {stable ? (
-        <View>
+        <View style={{ backgroundColor: "#6e8e8a" }}>
           <Text style={styles.title}>Din stald: {stable.name}</Text>
           <Text>Telefon: {stable.phone}</Text>
           <Text>Email: {stable.email}</Text>
+          <Text>Antal medlemmer: {stable.members}</Text>
+
+          {/* Tilføj medlem knap */}
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.primary }]}
+          >
+            <Text style={styles.buttonText}>Tilføj medlem</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <CreateStableLink /> // Vis link til at oprette stald hvis ingen stald er oprettet
@@ -69,9 +79,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#6e8e8a", // Match baggrundsfarven fra login-siden
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  button: {
+    marginTop: 20,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#6e8e8a",
+  },
+  buttonText: {
+    color: "#000000",
+    textAlign: "center",
   },
 });
