@@ -71,7 +71,7 @@ export default function TabOneScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View>
+        <View style={styles.container}>
           <TouchableOpacity
             style={styles.createStableButton}
             onPress={() => router.push("../stables/CreateStableScreen")}
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
+    backgroundColor: "#fcf7f2",
   },
   buttonText: {
     color: "#000",
