@@ -1,6 +1,10 @@
-// app/(tabs)/index.tsx
 import { useEffect, useState } from "react";
-import { StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import {
   getFirestore,
   collection,
@@ -10,13 +14,15 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
-import CreateStableLink from "../stables/CreateStableLink"; // Importer CreateStableLink
+import CreateStableLink from "../stables/CreateStableLink";
+import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 
 export default function TabOneScreen() {
-  const [stable, setStable] = useState<any | null>(null); // Holder staldens data
+  const [stable, setStable] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const { colors } = useTheme();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserStable = async () => {
@@ -25,19 +31,18 @@ export default function TabOneScreen() {
       const user = auth.currentUser;
 
       if (user) {
-        // Tjekker for stalde, hvor admin matcher brugerens UID
         const stablesRef = collection(db, "stables");
         const q = query(stablesRef, where("admin", "==", user.uid));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const stableData = querySnapshot.docs[0].data(); // Tag første stald fundet
+          const stableData = querySnapshot.docs[0].data();
           setStable(stableData);
         } else {
-          setStable(null); // Hvis brugeren ikke administrerer nogen stald
+          setStable(null);
         }
       }
-      setLoading(false); // Stop loading uanset udfaldet
+      setLoading(false);
     };
 
     fetchUserStable();
@@ -52,48 +57,93 @@ export default function TabOneScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {stable ? (
-        <View style={{ backgroundColor: "#6e8e8a" }}>
-          <Text style={styles.title}>Din stald: {stable.name}</Text>
-          <Text>Telefon: {stable.phone}</Text>
-          <Text>Email: {stable.email}</Text>
-          <Text>Antal medlemmer: {stable.members}</Text>
-
-          {/* Tilføj medlem knap */}
+        <View style={styles.stableCard}>
+          <Text style={styles.stableTitle}>{stable.name}</Text>
+          <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
+          <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={styles.createStableButton}
+            onPress={() => router.push("../stables/ViewAllStables")}
           >
-            <Text style={styles.buttonText}>Tilføj medlem</Text>
+            <Text style={styles.buttonText}>Se alle stalde</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <CreateStableLink /> // Vis link til at oprette stald hvis ingen stald er oprettet
+        <View>
+          <TouchableOpacity
+            style={styles.createStableButton}
+            onPress={() => router.push("../stables/CreateStableScreen")}
+          >
+            <Text style={styles.buttonText}>Opret stald</Text>
+          </TouchableOpacity>
+
+          {/* Knap til at se alle stalde */}
+          <TouchableOpacity
+            style={styles.createStableButton}
+            onPress={() => router.push("../stables/ViewAllStables")}
+          >
+            <Text style={styles.buttonText}>Se alle stalde</Text>
+          </TouchableOpacity>
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#6e8e8a", // Match baggrundsfarven fra login-siden
+    padding: 20,
+    backgroundColor: "#6e8e8a",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 36,
+    marginBottom: 20,
+    textAlign: "center",
   },
-  button: {
-    marginTop: 20,
+  createStableButton: {
+    marginTop: 30,
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#6e8e8a",
+    borderColor: "#000000",
   },
   buttonText: {
-    color: "#000000",
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 16,
     textAlign: "center",
+  },
+  stableCard: {
+    backgroundColor: "#FCF7F2",
+    padding: 15,
+    marginBottom: 20,
+    borderRadius: 10,
+    shadowColor: "#6e8e8a",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "#6e8e8a",
+  },
+  stableTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#000", // Sikre tekstfarven er synlig
+  },
+  stableInfo: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#000", // Sikre tekstfarven er synlig
+  },
+  noStableText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
