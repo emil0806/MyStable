@@ -11,6 +11,8 @@ import {
   query,
   where,
   getDocs,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
@@ -18,6 +20,7 @@ import CreateStableLink from "../stables/CreateStableLink";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import ViewAllHorsesScreen from "../stables/ViewAllHorses";
+import { auth } from "@/firebaseConfig";
 
 export default function TabOneScreen() {
   const [stable, setStable] = useState<any | null>(null);
@@ -28,19 +31,29 @@ export default function TabOneScreen() {
   useEffect(() => {
     const fetchUserStable = async () => {
       const db = getFirestore();
-      const auth = getAuth();
       const user = auth.currentUser;
 
-      if (user) {
-        const stablesRef = collection(db, "stables");
-        const q = query(stablesRef, where("admin", "==", user.uid));
-        const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-          const stableData = querySnapshot.docs[0].data();
-          setStable(stableData);
-        } else {
-          setStable(null);
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const stableId = userData?.stableId;
+
+
+          if (stableId) {
+            const stablesDocRef = doc(db, "stables", stableId);
+            const stableSnapshot = await getDoc(stablesDocRef);
+            if (stableSnapshot.exists()) {
+              const stableData = stableSnapshot.data();
+              setStable(stableData);
+            } else {
+              setStable(null);
+            }
+
+          }
         }
       }
       setLoading(false);

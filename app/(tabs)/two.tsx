@@ -13,6 +13,7 @@ import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { View } from "@/components/Themed";
 import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
+import { useFocusEffect } from "@react-navigation/native";
 
 // Opsætning af lokaliserede ugedage og måneder til dansk
 LocaleConfig.locales['da'] = {
@@ -53,10 +54,12 @@ export default function CalendarScreen() {
     fetchAdminStatus();
   }, []);
 
-  useEffect(() => {
-    // Load events from storage or API if needed
-    fetchEvents();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      // Load events from storage or API if needed
+      fetchEvents();
+    }, [])
+  );
 
   const fetchAdminStatus = async () => {
     const currentUser = auth.currentUser;
@@ -214,13 +217,13 @@ export default function CalendarScreen() {
 
   // Funktion til at formatere dato til dd-mm-yy
   // Funktion til at formatere dato til dd-mm-yyyy
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
-  const year = String(date.getFullYear()); // Henter hele året (fire cifre)
-  return `${day}-${month}-${year}`;
-};
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
+    const year = String(date.getFullYear()); // Henter hele året (fire cifre)
+    return `${day}-${month}-${year}`;
+  };
 
 
   return (

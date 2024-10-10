@@ -65,7 +65,6 @@ export default function ViewAllHorsesScreen() {
           return;
         }
 
-        // Step 2: Fetch horses where ownerId is in the members array
         const horsesQuery = query(
           collection(db, "horses"),
           where("ownerId", "in", members)
