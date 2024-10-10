@@ -70,7 +70,6 @@ export default function Profile() {
     }
   };
 
-  const fetchUserInfo = async () => { };
 
   const handleAddHorse = () => {
     setModalVisible(true);

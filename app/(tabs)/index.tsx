@@ -14,53 +14,78 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
 import CreateStableLink from "../stables/CreateStableLink";
-import { useRouter } from "expo-router";
-import { useTheme } from "@react-navigation/native";
+import { useRouter, useSegments } from "expo-router";
+import { useFocusEffect, useTheme } from "@react-navigation/native";
 import ViewAllHorsesScreen from "../stables/ViewAllHorses";
-import { auth } from "@/firebaseConfig";
+import { auth, db } from "@/firebaseConfig";
+import React from "react";
 
 export default function TabOneScreen() {
   const [stable, setStable] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isUserReady, setIsUserReady] = useState(false);
   const { colors } = useTheme();
   const router = useRouter();
+  const segments = useSegments();
 
-  useEffect(() => {
-    const fetchUserStable = async () => {
-      const db = getFirestore();
-      const user = auth.currentUser;
-
-
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const stableId = userData?.stableId;
+  const fetchUserStable = async () => {
+    setLoading(true);
+    const db = getFirestore();
+    const user = auth.currentUser;
 
 
-          if (stableId) {
-            const stablesDocRef = doc(db, "stables", stableId);
-            const stableSnapshot = await getDoc(stablesDocRef);
-            if (stableSnapshot.exists()) {
-              const stableData = stableSnapshot.data();
-              setStable(stableData);
-            } else {
-              setStable(null);
-            }
 
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const stableId = userData?.stableId;
+
+        if (stableId) {
+          const stablesDocRef = doc(db, "stables", stableId);
+          const stableSnapshot = await getDoc(stablesDocRef);
+
+          if (stableSnapshot.exists()) {
+            const stableData = stableSnapshot.data();
+            setStable(stableData);
+
+          } else {
+            setStable(null);
           }
+
         }
       }
-      setLoading(false);
-    };
+    }
+    setLoading(false);
+  };
 
-    fetchUserStable();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // When user is authenticated, set the user readiness flag and fetch data
+        setIsUserReady(true);
+        fetchUserStable(); // Fetch stable info when the user is authenticated
+      } else {
+        setIsUserReady(false); // No authenticated user
+        setStable(null);
+        setLoading(false); // Stop loading if no user is authenticated
+      }
+    });
+
+    // Cleanup the auth state listener when the component unmounts
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (isUserReady) {
+      fetchUserStable();
+    }
+  }, [segments, isUserReady]);
 
   if (loading) {
     return (

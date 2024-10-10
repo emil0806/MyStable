@@ -56,7 +56,6 @@ export default function CalendarScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Load events from storage or API if needed
       fetchEvents();
     }, [])
   );
@@ -69,7 +68,7 @@ export default function CalendarScreen() {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setIsAdmin(userData.isAdmin || false); // Assume isAdmin is a field in the user document
+        setIsAdmin(userData.isAdmin || false);
       }
     }
   };
@@ -77,8 +76,7 @@ export default function CalendarScreen() {
   const fetchEvents = async () => {
     try {
       const eventsCollection = collection(db, "events");
-      const q = query(eventsCollection, where("date", "==", selectedDate));
-      const eventsSnapshot = await getDocs(q);
+      const eventsSnapshot = await getDocs(eventsCollection);
       const fetchedEvents: Event[] = eventsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
