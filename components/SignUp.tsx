@@ -22,6 +22,7 @@ const SignUp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [stableId, setStableId] = useState("");
 
   const { colors } = useTheme();
 
@@ -48,6 +49,7 @@ const SignUp: React.FC = () => {
           phone: phone,
           email: email,
           horses: [],
+          stableId: "",
         });
         router.push("/(tabs)");
       } catch (e) {

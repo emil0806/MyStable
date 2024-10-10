@@ -64,11 +64,14 @@ export default function TabOneScreen() {
           <Text style={styles.stableTitle}>{stable.name}</Text>
           <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
           <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
+          <Text style={styles.stableInfo}>
+            Antal medlemmer: {stable.numOfMembers}
+          </Text>
           <TouchableOpacity
             style={styles.createStableButton}
-            onPress={() => router.push("../stables/ViewAllStables")}
+            onPress={() => router.push("../stables/AddMember")}
           >
-            <Text style={styles.buttonText}>Se alle stalde</Text>
+            <Text style={styles.buttonText}>Tilføj medlem</Text>
           </TouchableOpacity>
         </View><ViewAllHorsesScreen /></>
       ) : (
@@ -81,15 +84,15 @@ export default function TabOneScreen() {
           </TouchableOpacity>
 
           {/* Knap til at se alle stalde */}
-          <TouchableOpacity
-            style={styles.createStableButton}
-            onPress={() => router.push("../stables/ViewAllStables")}
-          >
-            <Text style={styles.buttonText}>Se alle stalde</Text>
-          </TouchableOpacity>
         </View>
         
       )}
+      <TouchableOpacity
+        style={styles.createStableButton}
+        onPress={() => router.push("../stables/ViewAllStables")}
+      >
+        <Text style={styles.buttonText}>Se alle stalde</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

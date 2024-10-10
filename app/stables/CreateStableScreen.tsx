@@ -17,6 +17,8 @@ export default function CreateStableScreen() {
   const [stableName, setStableName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [numOfMembers, setNumOfMembers] = useState("");
+  const [members, setMembers] = useState([]);
   const router = useRouter();
   const { colors } = useTheme();
 
@@ -36,8 +38,9 @@ export default function CreateStableScreen() {
         name: stableName,
         phone: phone,
         email: email,
-        members: 0, // Start med 0 medlemmer, da de tilføjes senere
+        numOfMembers: 0, // Start med 0 medlemmer, da de tilføjes senere
         admin: user.uid, // Brugeren bliver admin af stalden
+        members: members,
       });
 
       Alert.alert("Succes", "Stald oprettet succesfuldt!");
