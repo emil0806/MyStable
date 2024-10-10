@@ -17,6 +17,7 @@ import { Text, View } from "@/components/Themed";
 import CreateStableLink from "../stables/CreateStableLink";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
+import ViewAllHorsesScreen from "../stables/ViewAllHorses";
 
 export default function TabOneScreen() {
   const [stable, setStable] = useState<any | null>(null);
@@ -59,7 +60,7 @@ export default function TabOneScreen() {
   return (
     <ScrollView style={styles.container}>
       {stable ? (
-        <View style={styles.stableCard}>
+        <><View style={styles.stableCard}>
           <Text style={styles.stableTitle}>{stable.name}</Text>
           <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
           <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
@@ -69,7 +70,7 @@ export default function TabOneScreen() {
           >
             <Text style={styles.buttonText}>Se alle stalde</Text>
           </TouchableOpacity>
-        </View>
+        </View><ViewAllHorsesScreen /></>
       ) : (
         <View style={styles.container}>
           <TouchableOpacity
@@ -87,6 +88,7 @@ export default function TabOneScreen() {
             <Text style={styles.buttonText}>Se alle stalde</Text>
           </TouchableOpacity>
         </View>
+        
       )}
     </ScrollView>
   );
