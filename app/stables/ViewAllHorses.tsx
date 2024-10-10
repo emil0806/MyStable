@@ -46,7 +46,6 @@ export default function ViewAllHorsesScreen() {
           setLoading(false);
           return;
         }
-        console.log("StableID:" + stableId)
 
         const stableRef = doc(db, "stables", stableId);
         const stableSnap = await getDoc(stableRef);
@@ -66,8 +65,6 @@ export default function ViewAllHorsesScreen() {
           return;
         }
 
-        console.log("Members: " + members);
-
         // Step 2: Fetch horses where ownerId is in the members array
         const horsesQuery = query(
           collection(db, "horses"),
@@ -83,7 +80,6 @@ export default function ViewAllHorsesScreen() {
 
         setHorses(fetchedHorses);
         setLoading(false);
-        console.log("Horses: " + horses);
       };
 
       fetchHorses();
