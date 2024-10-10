@@ -124,7 +124,7 @@ export default function CalendarScreen() {
       } else {
         // Add new event to Firebase
         await addDoc(collection(db, "events"), newEvent);
-        Alert.alert('Begivenhed gemt til Firebase!');
+        Alert.alert('Begivenheden er gemt!');
       }
 
       // Fetch updated events for the selected date to show the newly created task
@@ -137,7 +137,7 @@ export default function CalendarScreen() {
       setEventTime("");
       setEditingEventId(null);
     } catch (error) {
-      console.error('Fejl ved lagring af begivenhed til Firebase: ', error);
+      console.error('Fejl ved lagring af begivenhed: ', error);
       Alert.alert('Fejl', 'Kunne ikke gemme begivenhed. Prøv igen.');
     }
   };
@@ -213,7 +213,6 @@ export default function CalendarScreen() {
     return markedDates;
   };
 
-  // Funktion til at formatere dato til dd-mm-yy
   // Funktion til at formatere dato til dd-mm-yyyy
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -234,6 +233,9 @@ export default function CalendarScreen() {
         theme={{
           arrowColor: '#2e78b7',
           monthTextColor: '#2e78b7',
+          backgroundColor: '#6e8e8a',
+          calendarBackground: '#fcf7f2',
+
         }}
       />
       <Button title="Tilføj" onPress={onCalendarButtonPress} />

@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6e8e8a",
   },
   horseCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fcf7f2",
     padding: 15,
     marginBottom: 20,
     borderRadius: 10,
