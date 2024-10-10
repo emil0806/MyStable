@@ -53,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Calendar",
+          title: "Kalender",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="calendar-month" color={color} size={35} />
           ),
