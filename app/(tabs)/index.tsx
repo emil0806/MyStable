@@ -63,6 +63,9 @@ export default function TabOneScreen() {
           <Text style={styles.stableTitle}>{stable.name}</Text>
           <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
           <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
+          <Text style={styles.stableInfo}>
+            Antal medlemmer: {stable.numOfMembers}
+          </Text>
           <TouchableOpacity
             style={styles.createStableButton}
             onPress={() => router.push("../stables/AddMember")}
