@@ -49,11 +49,14 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* Calendar Tab */}
       <Tabs.Screen
         name="two"
         options={{
-          title: "Tab Two",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "Calendar",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="calendar-month" color={color} size={35} />
+          ),
         }}
       />
       {/* Profile tab with a black icon when active and grey when inactive */}
