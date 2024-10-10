@@ -9,10 +9,23 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Calendar, DateData } from "react-native-calendars";
+import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { View } from "@/components/Themed";
 import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
+
+// Opsætning af lokaliserede ugedage og måneder til dansk
+LocaleConfig.locales['da'] = {
+  monthNames: [
+    'Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'December'
+  ],
+  monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+  dayNames: ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'],
+  dayNamesShort: ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'],
+  today: "I dag"
+};
+LocaleConfig.defaultLocale = 'da';
 
 interface Event {
   id: string;
@@ -207,7 +220,7 @@ export default function CalendarScreen() {
         markingType={"multi-dot"}
         theme={{
           arrowColor: '#2e78b7',
-          monthTextColor: '#2e78b7', // Use this to ensure month names are in Danish (React Native Calendars might already support this based on locale settings)
+          monthTextColor: '#2e78b7', // Ensure month names are correctly styled
         }}
       />
       <Button title="Tilføj" onPress={onCalendarButtonPress} />
