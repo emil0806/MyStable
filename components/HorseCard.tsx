@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ViewStyle } from "react-native";
+import { View, Text, TouchableOpacity, ViewStyle, StyleSheet } from "react-native";
 
 interface Feeding {
   food: string;
@@ -7,30 +7,22 @@ interface Feeding {
 }
 
 interface HorseCardProps {
-  id: string; // Include id for identifying the horse document in the database
   name: string;
   breed: string;
   dob: string;
   color: string;
   feedings: Feeding[];
   style?: ViewStyle;
-  onEdit: (horseData: any) => void; // Add onEdit prop to handle edit functionality
 }
 
 const HorseCard: React.FC<HorseCardProps> = ({
-  id,
   name,
   breed,
   dob,
   color,
   feedings,
   style,
-  onEdit,
 }) => {
-  // Handler to trigger the edit process with the current horse's data
-  const handleEdit = () => {
-    onEdit({ id, name, breed, dob, color, feedings });
-  };
 
   return (
     <View style={[styles.card, style]}>
@@ -55,12 +47,12 @@ const HorseCard: React.FC<HorseCardProps> = ({
       </View>
 
       {/* Edit button */}
-      <TouchableOpacity style={styles.button} onPress={handleEdit}>
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Edit details</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   card: {
