@@ -16,6 +16,7 @@ import {
   updateDoc,
   doc,
   getDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
@@ -80,8 +81,8 @@ export default function AddMember() {
       }
 
       // Hent brugerens UID
-      const memberData = querySnapshot.docs[0].data();
-      const memberId = querySnapshot.docs[0].id;
+      const memberDoc = querySnapshot.docs[0];
+      const memberId = memberDoc.id;
 
       // Opdater stalden med brugerens UID som medlem
       const stableRef = doc(db, "stables", stableId);
@@ -89,8 +90,14 @@ export default function AddMember() {
       const currentNumOfMembers = stableSnapshot.data()?.numOfMembers || 0;
 
       await updateDoc(stableRef, {
-        members: memberId, // Tilføj memberId til members-feltet
-        numOfMembers: currentNumOfMembers + 1,
+        members: arrayUnion(memberId), // Tilføj memberId til members-arrayet
+        numOfMembers: currentNumOfMembers + 1, // Øg antal medlemmer
+      });
+
+      // Opdater brugerens stableId felt
+      const userRef = doc(db, "users", memberId);
+      await updateDoc(userRef, {
+        stableId: stableId, // Opdater brugerens stableId felt
       });
 
       Alert.alert("Succes", "Medlem tilføjet til stalden!");
