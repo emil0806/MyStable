@@ -69,7 +69,7 @@ export default function CalendarScreen() {
       })) as Event[];
       setEvents(fetchedEvents);
     } catch (error) {
-      console.error("Error fetching events: ", error);
+      console.error("Fejl ved hentning af begivenheder: ", error);
     }
   };
 
@@ -79,7 +79,7 @@ export default function CalendarScreen() {
 
   const onCalendarButtonPress = () => {
     if (!selectedDate) {
-      Alert.alert("No Date Selected", "Please select a date on the calendar.");
+      Alert.alert("Ingen dato valgt", "Vælg venligst en dato på kalenderen.");
       return;
     }
     setModalVisible(true);
@@ -92,7 +92,7 @@ export default function CalendarScreen() {
 
   const handleSaveEvent = async () => {
     if (!eventTitle) {
-      Alert.alert("Title Required", "Please enter an event title.");
+      Alert.alert("Titel krævet", "Indtast venligst en titel for begivenheden.");
       return;
     }
 
@@ -101,7 +101,7 @@ export default function CalendarScreen() {
       title: eventTitle,
       description: eventDescription,
       time: eventTime,
-      user: auth.currentUser ? auth.currentUser.uid : "unknown", // Ensure the user is associated with the event
+      user: auth.currentUser ? auth.currentUser.uid : "ukendt", // Ensure the user is associated with the event
     };
 
     try {
@@ -110,7 +110,7 @@ export default function CalendarScreen() {
       } else {
         // Add new event to Firebase
         await addDoc(collection(db, "events"), newEvent);
-        Alert.alert('Event saved to Firebase!');
+        Alert.alert('Begivenhed gemt til Firebase!');
       }
 
       // Fetch updated events for the selected date to show the newly created task
@@ -123,8 +123,8 @@ export default function CalendarScreen() {
       setEventTime("");
       setEditingEventId(null);
     } catch (error) {
-      console.error('Error saving event to Firebase: ', error);
-      Alert.alert('Error', 'Failed to save event. Please try again.');
+      console.error('Fejl ved lagring af begivenhed til Firebase: ', error);
+      Alert.alert('Fejl', 'Kunne ikke gemme begivenhed. Prøv igen.');
     }
   };
 
@@ -139,10 +139,10 @@ export default function CalendarScreen() {
   };
 
   const handleDeleteEvent = (id: string) => {
-    Alert.alert("Delete Event", "Are you sure you want to delete this event?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert("Slet begivenhed", "Er du sikker på, at du vil slette denne begivenhed?", [
+      { text: "Annuller", style: "cancel" },
       {
-        text: "Delete",
+        text: "Slet",
         style: "destructive",
         onPress: () => {
           const updatedEvents = events.filter((event) => event.id !== id);
@@ -207,6 +207,7 @@ export default function CalendarScreen() {
         markingType={"multi-dot"}
         theme={{
           arrowColor: '#2e78b7',
+          monthTextColor: '#2e78b7', // Use this to ensure month names are in Danish (React Native Calendars might already support this based on locale settings)
         }}
       />
       <Button title="Tilføj" onPress={onCalendarButtonPress} />
@@ -215,9 +216,9 @@ export default function CalendarScreen() {
       {/* Display events for the selected date */}
       {selectedDate && (
         <View style={styles.eventsContainer}>
-          <Text style={styles.eventsTitle}>Events on {selectedDate}:</Text>
+          <Text style={styles.eventsTitle}>Begivenheder den {selectedDate}:</Text>
           {getEventsForDate(selectedDate).length === 0 ? (
-            <Text style={styles.noEventsText}>No events for this date.</Text>
+            <Text style={styles.noEventsText}>Ingen begivenheder for denne dato.</Text>
           ) : (
             <FlatList
               data={getEventsForDate(selectedDate)}
@@ -225,16 +226,16 @@ export default function CalendarScreen() {
               renderItem={({ item }) => (
                 <View style={styles.eventItem}>
                   <Text style={styles.eventTitle}>
-                    {item.title} {item.time ? `at ${item.time}` : ""}
+                    {item.title} {item.time ? `kl. ${item.time}` : ""}
                   </Text>
                   <Text>{item.description}</Text>
                   {isAdmin && (
                     <View style={styles.eventButtons}>
                       <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                        <Text style={styles.editButton}>Edit</Text>
+                        <Text style={styles.editButton}>Rediger</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
-                        <Text style={styles.deleteButton}>Delete</Text>
+                        <Text style={styles.deleteButton}>Slet</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -254,30 +255,30 @@ export default function CalendarScreen() {
       >
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>
-            {editingEventId ? "Edit Event" : "Add Event"}
+            {editingEventId ? "Rediger begivenhed" : "Tilføj begivenhed"}
           </Text>
-          <Text style={styles.modalLabel}>Date: {selectedDate}</Text>
+          <Text style={styles.modalLabel}>Dato: {selectedDate}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Event Title"
+            placeholder="Titel for begivenhed"
             value={eventTitle}
             onChangeText={setEventTitle}
           />
           <TextInput
             style={styles.input}
-            placeholder="Event Time (e.g., 14:30)"
+            placeholder="Tid (f.eks. 14:30)"
             value={eventTime}
             onChangeText={setEventTime}
           />
           <TextInput
             style={[styles.input, { height: 80 }]}
-            placeholder="Event Description"
+            placeholder="Beskrivelse"
             value={eventDescription}
             onChangeText={setEventDescription}
             multiline
           />
-          <Button title="Save Event" onPress={handleSaveEvent} />
-          <Button title="Cancel" onPress={() => setModalVisible(false)} />
+          <Button title="Gem begivenhed" onPress={handleSaveEvent} />
+          <Button title="Annuller" onPress={() => setModalVisible(false)} />
         </View>
       </Modal>
     </View>
