@@ -37,14 +37,37 @@ export default function CalendarScreen() {
   }, []);
 
   const fetchEvents = () => {
-    // Fetch events from local storage or backend
-    // For now, we'll start with an empty array
-    setEvents([]);
+    // Pre-populate events with default events for a range of dates
+    const defaultEvents: Event[] = [];
+    const startDate = new Date(); // Today
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 365); // Next 365 days
+
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      defaultEvents.push(
+        {
+          id: `default-1-${dateStr}`,
+          date: dateStr,
+          title: 'Turnout',
+          description: '',
+          time: '08:00',
+        },
+        {
+          id: `default-2-${dateStr}`,
+          date: dateStr,
+          title: 'Bring-in',
+          description: '',
+          time: '19:30',
+        }
+      );
+    }
+
+    setEvents(defaultEvents);
   };
 
   const onDayPress = (day: DateData) => {
     setSelectedDate(day.dateString);
-    // Handle date selection if needed
   };
 
   const onCalendarButtonPress = () => {
@@ -70,11 +93,11 @@ export default function CalendarScreen() {
       const updatedEvents = events.map((event) =>
         event.id === editingEventId
           ? {
-              ...event,
-              title: eventTitle,
-              description: eventDescription,
-              time: eventTime,
-            }
+            ...event,
+            title: eventTitle,
+            description: eventDescription,
+            time: eventTime,
+          }
           : event
       );
       setEvents(updatedEvents);
@@ -121,45 +144,27 @@ export default function CalendarScreen() {
     ]);
   };
 
-  const getDefaultEventsForDate = (date: string): Event[] => [
-    {
-      id: `default-1-${date}`,
-      date,
-      title: "Turnout",
-      description: "",
-      time: "08:00",
-    },
-    {
-      id: `default-2-${date}`,
-      date,
-      title: "Bring-in",
-      description: "",
-      time: "19:30",
-    },
-  ];
-
   const getEventsForDate = (date: string): Event[] => {
-    const defaultEvents = getDefaultEventsForDate(date);
-    const userEvents = events.filter((event) => event.date === date);
-    return [...defaultEvents, ...userEvents];
+    return events.filter((event) => event.date === date);
   };
 
   const getMarkedDates = () => {
     const markedDates: { [key: string]: any } = {};
 
-    // Mark dates with user-created events only
+    // Mark dates with user-added events only
     events.forEach((event) => {
-      if (markedDates[event.date]) {
-        // If the date already exists, add another dot
-        if (markedDates[event.date].dots) {
-          markedDates[event.date].dots.push({ color: "red" });
+      if (!event.id.startsWith('default-')) {
+        if (markedDates[event.date]) {
+          if (markedDates[event.date].dots) {
+            markedDates[event.date].dots.push({ color: 'red' });
+          } else {
+            markedDates[event.date].dots = [{ color: 'red' }];
+          }
         } else {
-          markedDates[event.date].dots = [{ color: "red" }];
+          markedDates[event.date] = {
+            dots: [{ color: 'red' }],
+          };
         }
-      } else {
-        markedDates[event.date] = {
-          dots: [{ color: "red" }],
-        };
       }
     });
 
@@ -193,8 +198,7 @@ export default function CalendarScreen() {
         markedDates={getMarkedDates()}
         markingType={"multi-dot"}
         theme={{
-          arrowColor: "#2e78b7",
-          // Remove 'todayTextColor' if it's interfering
+          arrowColor: '#2e78b7',
         }}
       />
       <Button title="Add Event" onPress={onCalendarButtonPress} />
@@ -215,18 +219,14 @@ export default function CalendarScreen() {
                     {item.title} {item.time ? `at ${item.time}` : ""}
                   </Text>
                   <Text>{item.description}</Text>
-                  {item.id.startsWith("default-") ? null : (
-                    <View style={styles.eventButtons}>
-                      <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                        <Text style={styles.editButton}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => handleDeleteEvent(item.id)}
-                      >
-                        <Text style={styles.deleteButton}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <View style={styles.eventButtons}>
+                    <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                      <Text style={styles.editButton}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                      <Text style={styles.deleteButton}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
             />
