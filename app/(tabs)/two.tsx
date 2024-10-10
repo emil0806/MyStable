@@ -213,13 +213,15 @@ export default function CalendarScreen() {
   };
 
   // Funktion til at formatere dato til dd-mm-yy
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
-    const year = String(date.getFullYear()).slice(-2); // Henter kun de sidste to cifre af året
-    return `${day}-${month}-${year}`;
-  };
+  // Funktion til at formatere dato til dd-mm-yyyy
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
+  const year = String(date.getFullYear()); // Henter hele året (fire cifre)
+  return `${day}-${month}-${year}`;
+};
+
 
   return (
     <View style={styles.container}>
