@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import { View } from "@/components/Themed";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { auth, db } from '@/firebaseConfig';
 
 interface Event {
   id: string;
@@ -18,6 +20,7 @@ interface Event {
   title: string;
   description: string;
   time: string;
+  user: string;
 }
 
 export default function CalendarScreen() {
@@ -27,43 +30,47 @@ export default function CalendarScreen() {
   const [eventTitle, setEventTitle] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventTime, setEventTime] = useState("");
+  const [eventUser, setEventUser] = useState("");
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false); // Track if the current user is an admin
 
   const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    fetchAdminStatus();
+  }, []);
 
   useEffect(() => {
     // Load events from storage or API if needed
     fetchEvents();
   }, []);
 
-  const fetchEvents = () => {
-    // Pre-populate events with default events for a range of dates
-    const defaultEvents: Event[] = [];
-    const startDate = new Date(); // Today
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 365); // Next 365 days
+  const fetchAdminStatus = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
 
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
-      defaultEvents.push(
-        {
-          id: `default-1-${dateStr}`,
-          date: dateStr,
-          title: 'Turnout',
-          description: '',
-          time: '08:00',
-        },
-        {
-          id: `default-2-${dateStr}`,
-          date: dateStr,
-          title: 'Bring-in',
-          description: '',
-          time: '19:30',
-        }
-      );
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setIsAdmin(userData.isAdmin || false); // Assume isAdmin is a field in the user document
+      }
     }
+  };
 
-    setEvents(defaultEvents);
+  const fetchEvents = async () => {
+    try {
+      const eventsCollection = collection(db, "events");
+      const q = query(eventsCollection, where("date", "==", selectedDate));
+      const eventsSnapshot = await getDocs(q);
+      const fetchedEvents: Event[] = eventsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Event[];
+      setEvents(fetchedEvents);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+    }
   };
 
   const onDayPress = (day: DateData) => {
@@ -79,46 +86,46 @@ export default function CalendarScreen() {
     setEventTitle("");
     setEventDescription("");
     setEventTime("");
+    setEventUser("");
     setEditingEventId(null);
   };
 
-  const handleSaveEvent = () => {
+  const handleSaveEvent = async () => {
     if (!eventTitle) {
       Alert.alert("Title Required", "Please enter an event title.");
       return;
     }
 
-    if (editingEventId) {
-      // Update existing event
-      const updatedEvents = events.map((event) =>
-        event.id === editingEventId
-          ? {
-            ...event,
-            title: eventTitle,
-            description: eventDescription,
-            time: eventTime,
-          }
-          : event
-      );
-      setEvents(updatedEvents);
-    } else {
-      // Add new event
-      const newEvent = {
-        id: Date.now().toString(),
-        date: selectedDate,
-        title: eventTitle,
-        description: eventDescription,
-        time: eventTime,
-      };
-      setEvents([...events, newEvent]);
-    }
+    const newEvent = {
+      date: selectedDate,
+      title: eventTitle,
+      description: eventDescription,
+      time: eventTime,
+      user: auth.currentUser ? auth.currentUser.uid : "unknown", // Ensure the user is associated with the event
+    };
 
-    // Reset the form and close the modal
-    setModalVisible(false);
-    setEventTitle("");
-    setEventDescription("");
-    setEventTime("");
-    setEditingEventId(null);
+    try {
+      if (editingEventId) {
+        // You can add logic for updating an event if required
+      } else {
+        // Add new event to Firebase
+        await addDoc(collection(db, "events"), newEvent);
+        Alert.alert('Event saved to Firebase!');
+      }
+
+      // Fetch updated events for the selected date to show the newly created task
+      fetchEvents();
+
+      // Reset the form and close the modal
+      setModalVisible(false);
+      setEventTitle("");
+      setEventDescription("");
+      setEventTime("");
+      setEditingEventId(null);
+    } catch (error) {
+      console.error('Error saving event to Firebase: ', error);
+      Alert.alert('Error', 'Failed to save event. Please try again.');
+    }
   };
 
   const handleEditEvent = (event: Event) => {
@@ -127,6 +134,7 @@ export default function CalendarScreen() {
     setEventTime(event.time);
     setEditingEventId(event.id);
     setSelectedDate(event.date);
+    setEventUser("");
     setModalVisible(true);
   };
 
@@ -201,7 +209,8 @@ export default function CalendarScreen() {
           arrowColor: '#2e78b7',
         }}
       />
-      <Button title="Add Event" onPress={onCalendarButtonPress} />
+      <Button title="Tilføj" onPress={onCalendarButtonPress} />
+      <Button title="Tilføj ind/ud" />
 
       {/* Display events for the selected date */}
       {selectedDate && (
@@ -219,14 +228,16 @@ export default function CalendarScreen() {
                     {item.title} {item.time ? `at ${item.time}` : ""}
                   </Text>
                   <Text>{item.description}</Text>
-                  <View style={styles.eventButtons}>
-                    <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                      <Text style={styles.editButton}>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
-                      <Text style={styles.deleteButton}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
+                  {isAdmin && (
+                    <View style={styles.eventButtons}>
+                      <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                        <Text style={styles.editButton}>Edit</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                        <Text style={styles.deleteButton}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               )}
             />

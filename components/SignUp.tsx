@@ -28,7 +28,7 @@ const SignUp: React.FC = () => {
 
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Adgangskode er ikke korrekt.");
       return;
     }
 
@@ -40,7 +40,7 @@ const SignUp: React.FC = () => {
         password
       );
       const user = userCredential.user;
-      setSuccess("Account created successfully!");
+      setSuccess("Succes. Din konto er oprettet.");
       setError(null);
       try {
         // Add a new document with a generated ID
@@ -53,7 +53,7 @@ const SignUp: React.FC = () => {
         });
         router.push("/(tabs)");
       } catch (e) {
-        setError("Error adding user data: " + e);
+        setError("Fejl med bruger data: " + e);
       }
     } catch (error: any) {
       setError(error.message);
@@ -62,14 +62,14 @@ const SignUp: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Opret konto</Text>
 
       {error && <Text style={styles.errorText}>{error}</Text>}
       {success && <Text style={styles.successText}>{success}</Text>}
 
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder="Navn"
         value={name}
         onChangeText={setName}
         autoCapitalize="none"
@@ -86,7 +86,7 @@ const SignUp: React.FC = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Phone number"
+        placeholder="Telefon"
         value={phone}
         onChangeText={setPhone}
         keyboardType="phone-pad"
@@ -95,7 +95,7 @@ const SignUp: React.FC = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Adgangskode"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -103,7 +103,7 @@ const SignUp: React.FC = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Confirm Password"
+        placeholder="Bekræft adgangskode"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
@@ -113,7 +113,7 @@ const SignUp: React.FC = () => {
         style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={handleSignUp}
       >
-        <Text style={styles.buttonText}>Create Account</Text>
+        <Text style={styles.buttonText}>Opret konto</Text>
       </TouchableOpacity>
     </View>
   );
