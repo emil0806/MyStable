@@ -212,6 +212,15 @@ export default function CalendarScreen() {
     return markedDates;
   };
 
+  // Funktion til at formatere dato til dd-mm-yy
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
+    const year = String(date.getFullYear()).slice(-2); // Henter kun de sidste to cifre af året
+    return `${day}-${month}-${year}`;
+  };
+
   return (
     <View style={styles.container}>
       <Calendar
@@ -230,7 +239,7 @@ export default function CalendarScreen() {
       {/* Display events for the selected date */}
       {selectedDate && (
         <View style={styles.eventsContainer}>
-          <Text style={styles.eventsTitle}>Begivenheder den {selectedDate}:</Text>
+          <Text style={styles.eventsTitle}>Begivenheder den {formatDate(selectedDate)}:</Text>
           {getEventsForDate(selectedDate).length === 0 ? (
             <Text style={styles.noEventsText}>Ingen begivenheder for denne dato.</Text>
           ) : (
@@ -271,7 +280,7 @@ export default function CalendarScreen() {
           <Text style={styles.modalTitle}>
             {editingEventId ? "Rediger begivenhed" : "Tilføj begivenhed"}
           </Text>
-          <Text style={styles.modalLabel}>Dato: {selectedDate}</Text>
+          <Text style={styles.modalLabel}>Dato: {formatDate(selectedDate)}</Text>
           <TextInput
             style={styles.input}
             placeholder="Titel for begivenhed"
