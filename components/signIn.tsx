@@ -16,7 +16,6 @@ const SignIn: React.FC = () => {
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
-                const user = userCredential.user;
                 router.push('/(tabs)');
             })
             .catch(error => {

@@ -7,10 +7,12 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import "react-native-reanimated";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { auth } from "@/firebaseConfig";
 
 export const ourTheme = {
   ...DefaultTheme, // Extend the default light theme
@@ -59,18 +61,38 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <RootLayoutNav />
+  );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const [user, setUser] = useState<User | null>(null);
+
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
 
   return (
     <ThemeProvider value={ourTheme}>
       <Stack>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        {user ? (
+          // User is authenticated
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        ) : (
+          // User is not authenticated
+          <>
+            <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="login/createAccount" options={{ headerShown: false }} />
+          </>
+        )}
       </Stack>
     </ThemeProvider>
   );
