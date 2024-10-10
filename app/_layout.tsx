@@ -83,16 +83,8 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={ourTheme}>
       <Stack>
-        {user ? (
-          // User is authenticated
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        ) : (
-          // User is not authenticated
-          <>
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="login/createAccount" options={{ headerShown: false }} />
-          </>
-        )}
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

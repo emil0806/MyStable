@@ -8,10 +8,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
+
 
 export default function CreateStableScreen() {
   const [stableName, setStableName] = useState("");
@@ -34,13 +35,21 @@ export default function CreateStableScreen() {
       }
 
       // Tilføj stald til databasen
-      await addDoc(collection(db, "stables"), {
+      const stableRef = await addDoc(collection(db, "stables"), {
         name: stableName,
         phone: phone,
         email: email,
         numOfMembers: 0, // Start med 0 medlemmer, da de tilføjes senere
         admin: user.uid, // Brugeren bliver admin af stalden
-        members: members,
+        members: arrayUnion(user.uid),
+      });
+
+      const stableId = stableRef.id; // Get the ID of the new stable
+
+      // Step 2: Update the user's document with the stableId
+      const userRef = doc(db, "users", user.uid); // Assuming user data is stored in a 'users' collection
+      await updateDoc(userRef, {
+        stableId: stableId, // Set the stableId to the user's document
       });
 
       Alert.alert("Succes", "Stald oprettet succesfuldt!");
@@ -59,7 +68,7 @@ export default function CreateStableScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="Staldenavn"
+        placeholder="Staldnavn"
         value={stableName}
         onChangeText={setStableName}
       />

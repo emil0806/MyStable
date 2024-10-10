@@ -85,7 +85,7 @@ export default function TabOneScreen() {
 
           {/* Knap til at se alle stalde */}
         </View>
-        
+
       )}
       <TouchableOpacity
         style={styles.createStableButton}
