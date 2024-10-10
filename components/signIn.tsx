@@ -16,7 +16,6 @@ const SignIn: React.FC = () => {
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
-                // User logged in
                 const user = userCredential.user;
                 router.push('/(tabs)');
             })
@@ -40,7 +39,7 @@ const SignIn: React.FC = () => {
 
             <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Adgangskode"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -52,8 +51,8 @@ const SignIn: React.FC = () => {
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            <Text>Not already a user?</Text>
-            <Link push href="/login/createAccount">Create Account</Link>
+            <Text style={styles.text}>Ikke bruger endnu?</Text>
+            <Link style={styles.create} push href="/login/createAccount">Lav konto</Link>
         </View>
     );
 };
@@ -102,6 +101,17 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: 'center',
     },
+    text: {
+        marginTop: 10,
+        marginBottom: 10,
+        textAlign: 'center',
+        fontStyle: 'italic',
+    },
+    create: {
+        textAlign: 'center',
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
+    }
 });
 
 export default SignIn;
