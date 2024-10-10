@@ -218,9 +218,10 @@ export default function CalendarScreen() {
         onDayPress={onDayPress}
         markedDates={getMarkedDates()}
         markingType={"multi-dot"}
+        firstDay={1} // Starter ugen med mandag
         theme={{
           arrowColor: '#2e78b7',
-          monthTextColor: '#2e78b7', // Ensure month names are correctly styled
+          monthTextColor: '#2e78b7',
         }}
       />
       <Button title="Tilføj" onPress={onCalendarButtonPress} />
