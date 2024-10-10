@@ -52,7 +52,7 @@ const SignIn: React.FC = () => {
             </TouchableOpacity>
 
             <Text style={styles.text}>Ikke bruger endnu?</Text>
-            <Link style={styles.create} push href="/login/createAccount">Lav konto</Link>
+            <Link style={styles.create} push href="/login/createAccount">Opret konto</Link>
         </View>
     );
 };
