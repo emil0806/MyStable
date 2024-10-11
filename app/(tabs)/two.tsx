@@ -316,10 +316,12 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fcf7f2',
   },
   eventsContainer: {
     flex: 1,
     padding: 10,
+    backgroundColor: '#fcf7f2',
   },
   eventsTitle: {
     fontSize: 18,

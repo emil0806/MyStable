@@ -1,5 +1,7 @@
+import { router } from "expo-router";
+import { getAuth, signOut } from "firebase/auth";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Button, TouchableOpacity, Alert } from "react-native";
 
 interface ProfileCardProps {
   email: string;
@@ -15,14 +17,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   phone,
   horsesCount,
 }) => {
+
+
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Profile Information</Text>
-      <Text>Email: {email}</Text>
-      <Text>Name: {name}</Text>
-      <Text>Phone: {phone}</Text>
-      <Text>Number of Horses: {horsesCount}</Text>
+      <View>
+        <Text style={styles.title}>Profile Information</Text>
+        <Text>Email: {email}</Text>
+        <Text>Name: {name}</Text>
+        <Text>Phone: {phone}</Text>
+        <Text>Number of Horses: {horsesCount}</Text>
+      </View>
     </View>
+
   );
 };
 
@@ -39,12 +46,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     width: "85%",
     alignSelf: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  button: {
+    borderColor: "#000",
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+
+  }
 });
 
 export default ProfileCard;

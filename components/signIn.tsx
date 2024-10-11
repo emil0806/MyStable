@@ -25,7 +25,6 @@ const SignIn: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
 
             <TextInput
                 style={styles.input}

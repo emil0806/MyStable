@@ -1,11 +1,15 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { Link, router, Tabs } from "expo-router";
+import { Alert, Pressable, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
+import { getAuth, signOut } from "firebase/auth";
+import { Text } from "react-native";
+import { StyleSheet } from "react-native";
+
 
 // TabBarIcon component for rendering the FontAwesome icon
 function TabBarIcon(props: {
@@ -17,6 +21,18 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const handleSignOut = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        Alert.alert("Du er logget ud.");
+        router.replace('/login');
+      })
+      .catch((error) => {
+        Alert.alert("Error", error.message);
+      });
+  };
 
   return (
     <Tabs
@@ -65,8 +81,29 @@ export default function TabLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          // Adding sign-out button in the header for the profile page
+          headerRight: () => (
+            <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+              <Text style={styles.buttonText}>Log ud</Text>
+            </TouchableOpacity>
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    marginRight: 15,
+    backgroundColor: "#f4511e",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+});
+
