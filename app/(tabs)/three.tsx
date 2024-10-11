@@ -18,7 +18,7 @@ export default function Profile() {
   const [horses, setHorses] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const [isModalVisible, setModalVisible] = useState(false);
 
   //fetch user profile
   const fetchUserProfile = async () => {
