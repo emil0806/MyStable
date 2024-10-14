@@ -36,9 +36,8 @@ export default function TabOneScreen() {
     const db = getFirestore();
     const user = auth.currentUser;
 
-
-
     if (user) {
+      // Hent brugerens dokument
       const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
 
@@ -52,12 +51,15 @@ export default function TabOneScreen() {
 
           if (stableSnapshot.exists()) {
             const stableData = stableSnapshot.data();
-            setStable(stableData);
 
+            // Tjek, om brugeren er admin eller medlem
+            const isAdmin = stableData?.admin === user.uid;
+            const isMember = stableData?.members?.includes(user.uid);
+
+            setStable({ ...stableData, isAdmin, isMember }); // Gem admin og medlem status
           } else {
             setStable(null);
           }
-
         }
       }
     }
@@ -98,20 +100,27 @@ export default function TabOneScreen() {
   return (
     <ScrollView style={styles.container}>
       {stable ? (
-        <><View style={styles.stableCard}>
-          <Text style={styles.stableTitle}>{stable.name}</Text>
-          <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
-          <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
-          <Text style={styles.stableInfo}>
-            Antal medlemmer: {stable.numOfMembers}
-          </Text>
-          <TouchableOpacity
-            style={styles.createStableButton}
-            onPress={() => router.push("../stables/AddMember")}
-          >
-            <Text style={styles.buttonText}>Tilføj medlem</Text>
-          </TouchableOpacity>
-        </View><ViewAllHorsesScreen /></>
+        <>
+          <View style={styles.stableCard}>
+            <Text style={styles.stableTitle}>{stable.name}</Text>
+            <Text style={styles.stableInfo}>E-mail: {stable.email}</Text>
+            <Text style={styles.stableInfo}>tlf. nummer: {stable.phone}</Text>
+            <Text style={styles.stableInfo}>
+              Antal medlemmer: {stable.numOfMembers}
+            </Text>
+
+            {/* Vis kun knappen til at tilføje medlemmer, hvis brugeren er admin */}
+            {stable.isAdmin && (
+              <TouchableOpacity
+                style={styles.createStableButton}
+                onPress={() => router.push("../stables/AddMember")}
+              >
+                <Text style={styles.buttonText}>Tilføj medlem</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <ViewAllHorsesScreen />
+        </>
       ) : (
         <View style={styles.container}>
           <TouchableOpacity
@@ -120,10 +129,7 @@ export default function TabOneScreen() {
           >
             <Text style={styles.buttonText}>Opret stald</Text>
           </TouchableOpacity>
-
-          {/* Knap til at se alle stalde */}
         </View>
-
       )}
       <TouchableOpacity
         style={styles.createStableButton}
