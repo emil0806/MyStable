@@ -1,56 +1,98 @@
-import { auth, db } from '../firebaseConfig';
-import { addDoc, collection } from 'firebase/firestore';
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { auth, db } from "../firebaseConfig";
+import { addDoc, doc, setDoc, collection } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Modal,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 
-const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit: () => void }> = ({ visible, onClose, onSubmit }) => {
-  const [name, setName] = useState('');
-  const [breed, setBreed] = useState('');
-  const [age, setAge] = useState('');
-  const [color, setColor] = useState('');
-  const [feedings, setFeedings] = useState([{ food: '', quantity: '' }]);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+const AddHorseModal: React.FC<{
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+  horseData?: any;
+}> = ({ visible, onClose, onSubmit, horseData }) => {
+  const [name, setName] = useState("");
+  const [breed, setBreed] = useState("");
+  const [age, setAge] = useState("");
+  const [color, setColor] = useState("");
+  const [feedings, setFeedings] = useState([{ food: "", quantity: "" }]);
+  const [error, setError] = useState("");
 
-  const handleAddHorse = async () => {
+  useEffect(() => {
+    if (horseData) {
+      console.log("Horse data received in modal:", horseData); // Check if age is included here
+      setName(horseData.name || "");
+      setBreed(horseData.breed || "");
+      setAge(horseData.age ? String(horseData.age) : "");
+      setColor(horseData.color || "");
+      setFeedings(horseData.feedings || [{ food: "", quantity: "" }]);
+    } else {
+      setName("");
+      setBreed("");
+      setAge("");
+      setColor("");
+      setFeedings([{ food: "", quantity: "" }]);
+    }
+  }, [horseData]);
 
-    const userId = auth.currentUser?.uid;
-    if (!userId) return;
+  const handleSaveHorse = async () => {
+    console.log("Save button clicked");
 
-    // Validate inputs
-    if (!name || !breed || !age || !color) {
-      setError('All fields are required');
+    if (!auth.currentUser?.uid) {
+      console.log("No user is authenticated");
       return;
     }
 
-    try {
-      // Add a new document with a generated ID
-      await addDoc(collection(db, 'horses'), {
-        name: name,
-        breed: breed,
-        age: parseInt(age),  // Convert age to number
-        color: color,
-        ownerId: auth.currentUser?.uid,
-        feedings: feedings,
-      });
+    // Log each field value
+    console.log("Horse Name:", name);
+    console.log("Breed:", breed);
+    console.log("Age:", age);
+    console.log("Color:", color);
 
-      // Reset fields
-      setName('');
-      setBreed('');
-      setAge('');
-      setColor('');
-      setFeedings([{ food: '', quantity: '' }]);
-      setError('');
-      setSuccessMessage('Horse data added successfully!');
-    } catch (e) {
-      setError('Error adding horse data: ' + e);
+    if (!name || !breed || !age || !color) {
+      setError("All fields are required");
+      console.log("Validation failed");
+      return;
     }
-    onSubmit();
-    onClose();
+
+    // Proceed with saving to Firestore if validation passes
+    try {
+      const horseDetails = {
+        name,
+        breed,
+        age: parseInt(age),
+        color,
+        ownerId: auth.currentUser?.uid,
+        feedings,
+      };
+
+      if (horseData) {
+        const horseRef = doc(db, "horses", horseData.id);
+        await setDoc(horseRef, horseDetails);
+        console.log("Horse updated successfully");
+      } else {
+        const horsesCollectionRef = collection(db, "horses");
+        await addDoc(horsesCollectionRef, horseDetails);
+        console.log("New horse added successfully");
+      }
+
+      onSubmit();
+      onClose();
+    } catch (e) {
+      setError("Error saving horse data: " + e);
+      console.error("Error in Firestore operation:", e);
+    }
   };
 
+  // Function to add a new feeding row
   const handleAddFeedingRow = () => {
-    setFeedings([...feedings, { food: '', quantity: '' }]);
+    setFeedings([...feedings, { food: "", quantity: "" }]);
   };
 
   const handleFeedingChange = (index: number, key: string, value: string) => {
@@ -64,54 +106,67 @@ const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit:
     <Modal visible={visible} animationType="slide" transparent={true}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Add Horse Details</Text>
+          <Text style={styles.title}>Din hests informationer</Text>
 
           {/* Horse details fields */}
           <TextInput
             style={styles.input}
-            placeholder="Horse Name"
+            placeholder="Hestens navn"
             value={name}
             onChangeText={setName}
           />
           <TextInput
             style={styles.input}
-            placeholder="Breed"
+            placeholder="Race"
             value={breed}
             onChangeText={setBreed}
           />
           <TextInput
             style={styles.input}
-            placeholder="Age"
+            placeholder="Alder"
             value={age}
-            onChangeText={setAge}
+            onChangeText={(text) => {
+              console.log("Age input changed:", text); // Log age input changes
+              setAge(text);
+            }}
+            keyboardType="numeric" // Allows only numeric input
           />
           <TextInput
             style={styles.input}
-            placeholder="Color"
+            placeholder="Farve"
             value={color}
             onChangeText={setColor}
           />
 
-          <Text style={styles.feedTitle}>Feeding Options</Text>
+          <Text style={styles.feedTitle}>Hvad spiser din hest dagligt?</Text>
           {feedings.map((feeding, index) => (
             <View key={index} style={styles.feedingRow}>
               <TextInput
                 style={styles.feedInput}
-                placeholder="Food Type"
+                placeholder="Foder"
                 value={feeding.food}
-                onChangeText={(value) => handleFeedingChange(index, 'food', value)}
+                onChangeText={(value) =>
+                  handleFeedingChange(index, "food", value)
+                }
               />
               <TextInput
                 style={styles.feedInput}
-                placeholder="Quantity (e.g., 2 kg)"
+                placeholder="Vægt (fx 2 kg)"
                 value={feeding.quantity}
-                onChangeText={(value) => handleFeedingChange(index, 'quantity', value)}
+                onChangeText={(value) =>
+                  handleFeedingChange(index, "quantity", value)
+                }
               />
             </View>
           ))}
 
-          <TouchableOpacity style={styles.addButton} onPress={handleAddFeedingRow}>
-            <Text style={styles.addButtonText}>+ Add Another Feeding Option</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddFeedingRow}
+          >
+            <Text style={styles.addButtonText}>
+              + Add Another Feeding Option
+            </Text>
           </TouchableOpacity>
 
           {/* Submit and Cancel buttons */}
@@ -119,8 +174,8 @@ const AddHorseModal: React.FC<{ visible: boolean; onClose: () => void; onSubmit:
             <TouchableOpacity style={styles.button} onPress={onClose}>
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleAddHorse}>
-              <Text style={styles.buttonText}>Submit</Text>
+            <TouchableOpacity style={styles.button} onPress={handleSaveHorse}>
+              <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -134,77 +189,77 @@ export default AddHorseModal;
 const styles = StyleSheet.create({
   modalContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparent background
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent background
   },
   modalContent: {
-    width: '90%',
+    width: "90%",
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   subTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-    width: '100%',
+    width: "100%",
   },
   feedContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   feedInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
-    width: '48%', // Makes sure both fields fit in the same row
+    width: "48%", // Makes sure both fields fit in the same row
   },
   addButton: {
     marginTop: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   addButtonText: {
-    color: '#007bff',
+    color: "#007bff",
     fontSize: 16,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 20,
   },
   button: {
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   feedTitle: {
     fontSize: 18,
     marginBottom: 10,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   feedingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
-  }
+  },
 });
