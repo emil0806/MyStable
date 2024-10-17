@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { View } from "@/components/Themed";
-import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -38,6 +38,7 @@ interface Event {
 }
 
 export default function CalendarScreen() {
+  const [stable, setStable] = useState<any | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -51,7 +52,7 @@ export default function CalendarScreen() {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    fetchAdminStatus();
+    fetchUserStable();
   }, []);
 
   useFocusEffect(
@@ -60,15 +61,35 @@ export default function CalendarScreen() {
     }, [])
   );
 
-  const fetchAdminStatus = async () => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const userDocRef = doc(db, "users", currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
+  const fetchUserStable = async () => {
+    const db = getFirestore();
+    const user = auth.currentUser;
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setIsAdmin(userData.isAdmin || false);
+    if (user) {
+      // Hent brugerens dokument
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const stableId = userData?.stableId;
+
+        if (stableId) {
+          const stablesDocRef = doc(db, "stables", stableId);
+          const stableSnapshot = await getDoc(stablesDocRef);
+
+          if (stableSnapshot.exists()) {
+            const stableData = stableSnapshot.data();
+
+            // Tjek, om brugeren er admin eller medlem
+            const isAdmin = stableData?.admin === user.uid;
+            const isMember = stableData?.members?.includes(user.uid);
+
+            setStable({ ...stableData, isAdmin, isMember });
+          } else {
+            setStable(null);
+          }
+        }
       }
     }
   };
@@ -195,7 +216,7 @@ export default function CalendarScreen() {
       markedDates[selectedDate] = {
         ...(markedDates[selectedDate] || {}),
         selected: true,
-        selectedColor: "#2e78b7",
+        selectedColor: "#6E8E8A",
       };
     }
 
@@ -225,26 +246,40 @@ export default function CalendarScreen() {
 
   return (
     <View style={styles.container}>
-      <Calendar
-        onDayPress={onDayPress}
-        markedDates={getMarkedDates()}
-        markingType={"multi-dot"}
-        firstDay={1} // Starter ugen med mandag
-        theme={{
-          arrowColor: '#2e78b7',
-          monthTextColor: '#2e78b7',
-          backgroundColor: '#6e8e8a',
-          calendarBackground: '#fcf7f2',
+      <View style={styles.calendarContainer}>
+        <Calendar
+          onDayPress={onDayPress}
+          markedDates={getMarkedDates()}
+          markingType={"multi-dot"}
+          firstDay={1} // Starter ugen med mandag
+          theme={{
+            arrowColor: '#6E8E8A',
+            monthTextColor: '#6E8E8A',
+            calendarBackground: '#fcf7f2',
+            textSectionTitleColor: '#6E8E8A',
+            selectedDayBackgroundColor: '#6E8E8A',
+            selectedDayTextColor: '#ffffff',
+            todayTextColor: '#6E8E8A',
+            dayTextColor: '#2d4150',
+            textDisabledColor: '#d9e1e8'
+          }}
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={onCalendarButtonPress} style={styles.button}>
+          <Text>Tilføj</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text>Tilføj ind/ud</Text>
+        </TouchableOpacity>
+      </View>
 
-        }}
-      />
-      <Button title="Tilføj" onPress={onCalendarButtonPress} />
-      <Button title="Tilføj ind/ud" />
+
 
       {/* Display events for the selected date */}
       {selectedDate && (
         <View style={styles.eventsContainer}>
-          <Text style={styles.eventsTitle}>Begivenheder den {formatDate(selectedDate)}:</Text>
+          <Text style={styles.eventsTitle}>Begivenheder d. {formatDate(selectedDate)}:</Text>
           {getEventsForDate(selectedDate).length === 0 ? (
             <Text style={styles.noEventsText}>Ingen begivenheder for denne dato.</Text>
           ) : (
@@ -256,8 +291,7 @@ export default function CalendarScreen() {
                   <Text style={styles.eventTitle}>
                     {item.title} {item.time ? `kl. ${item.time}` : ""}
                   </Text>
-                  <Text>{item.description}</Text>
-                  {isAdmin && (
+                  {stable.isAdmin && (
                     <View style={styles.eventButtons}>
                       <TouchableOpacity onPress={() => handleEditEvent(item)}>
                         <Text style={styles.editButton}>Rediger</Text>
@@ -317,6 +351,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fcf7f2',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 20,
   },
   eventsContainer: {
     flex: 1,
@@ -327,36 +364,58 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "#000000",
   },
   noEventsText: {
     fontStyle: "italic",
     color: "#666",
   },
   eventItem: {
-    padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#000000",
+    backgroundColor: '#fcf7f2',
+    margin: 0,
+    paddingTop: 8,
+    paddingBottom: 5,
   },
   eventTitle: {
     fontSize: 16,
     fontWeight: "bold",
+    margin: 0,
+
   },
   eventButtons: {
     flexDirection: "row",
-    marginTop: 10,
+    backgroundColor: "#fcf7f2",
+    gap: 10,
+    marginTop: 8,
+    marginBottom: 8,
   },
   editButton: {
-    marginRight: 15,
-    color: "blue",
+    alignItems: "center",
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    backgroundColor: "#fcf7f2",
   },
   deleteButton: {
-    color: "red",
+    alignItems: "center",
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    backgroundColor: "#fcf7f2",
+    color: "red"
   },
   modalContainer: {
     flex: 1,
     padding: 20,
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#fcf7f2",
   },
   modalTitle: {
     fontSize: 24,
@@ -374,4 +433,29 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 16,
   },
+  calendarContainer: {
+    borderWidth: 2,
+    borderColor: '#6E8E8A',
+    borderRadius: 10,
+    overflow: 'hidden',
+    margin: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: "#fcf7f2",
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  button: {
+    marginLeft: 10,
+    marginRight: 10,
+    width: 100,
+    alignItems: "center",
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    backgroundColor: "#fcf7f2",
+  }
 });

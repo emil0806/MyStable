@@ -19,8 +19,10 @@ export const ourTheme = {
   colors: {
     ...DefaultTheme.colors,
     primary: "#FCF7F2", // Custom primary color for buttons, etc.
-    background: "#6E8E8A", // Custom background color
-    text: "#000000", // Custom text color
+    background: "#FCF7F2", // Custom background color
+    textPrimary: '#000000',
+    textSecondary: '#8E8E93', // Custom text color
+    placeholder: '#C7C7CD',
     card: "#ffffff", // Color for cards, headers
     border: "#cccccc", // Border color for various components
     notification: "#ff9800", // Color for notifications (like badges)

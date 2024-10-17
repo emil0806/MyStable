@@ -55,9 +55,12 @@ const HorseCard: React.FC<HorseCardProps> = ({
           </View>
         ))}
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleEdit}>
-        <Text style={styles.buttonText}>Opdater oplysninger</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleEdit}>
+          <Text style={styles.buttonText}>Opdater oplysninger</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -67,16 +70,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#FCF7F2",
     borderRadius: 10,
     padding: 10,
-    margin: 10,
+    marginLeft: 30,
+    marginRight: 30,
+    marginBottom: 20,
     elevation: 3,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    width: 350, // Set a fixed width
-    maxWidth: 350, // Ensure max width doesn't exceed this value
-    alignSelf: "center", // Center the card horizontally
-  }, // <-- Add this comma here to fix the error
+    alignSelf: "center",
+    width: 330,
+  },
   header: {
     flexDirection: "row", // Align text and image in a row
     justifyContent: "space-between", // Space between title and image
@@ -106,19 +110,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flexShrink: 0,
   },
+  buttonContainer: {
+    alignItems: "center"
+  },
   button: {
-    borderColor: "#000", // Black border
-    borderWidth: 1, // Thin border
-    borderRadius: 20, // Rounded corners
-    paddingVertical: 5, // Vertical padding inside the button
-    paddingHorizontal: 15, // Horizontal padding inside the button
-    alignItems: "center",
-    justifyContent: "center",
+    marginTop: 10,
+    width: 200,
+    padding: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    backgroundColor: "#fcf7f2",
   },
   buttonText: {
     color: "#000", // Black text
-    fontSize: 16, // Font size similar to the image
-    fontFamily: "Inter-Regular", // Apply Inter Regular font to button text
+    fontSize: 16,
+    textAlign: "center"
   },
   feed: {
 

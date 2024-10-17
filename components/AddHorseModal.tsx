@@ -26,7 +26,7 @@ const AddHorseModal: React.FC<{
 
   useEffect(() => {
     if (horseData) {
-      console.log("Horse data received in modal:", horseData); // Check if age is included here
+      console.log("Horse data received in modal:", horseData);
       setName(horseData.name || "");
       setBreed(horseData.breed || "");
       setAge(horseData.age ? String(horseData.age) : "");
@@ -49,11 +49,6 @@ const AddHorseModal: React.FC<{
       return;
     }
 
-    // Log each field value
-    console.log("Horse Name:", name);
-    console.log("Breed:", breed);
-    console.log("Age:", age);
-    console.log("Color:", color);
 
     if (!name || !breed || !age || !color) {
       setError("All fields are required");
@@ -61,7 +56,6 @@ const AddHorseModal: React.FC<{
       return;
     }
 
-    // Proceed with saving to Firestore if validation passes
     try {
       const horseDetails = {
         name,
@@ -106,7 +100,6 @@ const AddHorseModal: React.FC<{
     <Modal visible={visible} animationType="slide" transparent={true}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Din hests informationer</Text>
 
           {/* Horse details fields */}
           <TextInput
@@ -165,17 +158,17 @@ const AddHorseModal: React.FC<{
             onPress={handleAddFeedingRow}
           >
             <Text style={styles.addButtonText}>
-              + Add Another Feeding Option
+              + Tilføj mulighed
             </Text>
           </TouchableOpacity>
 
           {/* Submit and Cancel buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={onClose}>
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>Annuller</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleSaveHorse}>
-              <Text style={styles.buttonText}>Save</Text>
+              <Text style={styles.buttonText}>Gem</Text>
             </TouchableOpacity>
           </View>
         </View>

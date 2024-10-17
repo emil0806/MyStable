@@ -27,11 +27,10 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   return (
     <View style={styles.card}>
       <View>
-        <Text style={styles.title}>Profil</Text>
-        <Text>Email: {email}</Text>
-        <Text>Navn: {name}</Text>
-        <Text>Telefon: {phone}</Text>
-        <Text>Antal heste: {horsesCount}</Text>
+        <Text style={styles.title}>{name}</Text>
+        <Text style={styles.text}>Email: {email}</Text>
+        <Text style={styles.text}>Telefon: {phone}</Text>
+        <Text style={styles.text}>Antal heste: {horsesCount}</Text>
       </View>
     </View>
   );
@@ -40,24 +39,22 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FCF7F2",
-    borderRadius: 10,
-    padding: 10,
-    margin: 10,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    width: "85%",
-    alignSelf: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    width: "100%",
+    padding: 15,
+    marginBottom: 8,
     alignItems: "center",
+    textAlign: "center",
   },
   title: {
-    fontSize: 18,
+    textAlign: "center",
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "#000",
+  },
+  text: {
+    textAlign: "center",
+
   },
   button: {
     borderColor: "#000",

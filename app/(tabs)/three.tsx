@@ -142,13 +142,14 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center", // Keep the components horizontally centered
-    justifyContent: "flex-start", // Align components to the top
-    paddingTop: 30, // Add space between the top of the screen and the first component
-    backgroundColor: "#6E8E8A", // Update background color as needed
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingTop: 10,
+    backgroundColor: "#fcf7f2",
+    paddingBottom: 30,
   },
   horseCard: {
-    marginBottom: 20, // Space between HorseCard and AddHorseButton
+    marginBottom: 20,
   },
   flat: {
     width: "100%",

@@ -113,8 +113,9 @@ export default function ViewAllHorsesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#6e8e8a",
+    paddingLeft: 30,
+    paddingRight: 30,
+    backgroundColor: "#fcf7f2",
   },
   horseCard: {
     backgroundColor: "#fcf7f2",
@@ -123,11 +124,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "#000000",
+    shadowOpacity: 0.1,
+    elevation: 3,
+    shadowRadius: 5,
   },
   horseTitle: {
     fontSize: 24,

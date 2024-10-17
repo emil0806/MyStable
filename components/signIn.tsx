@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '@react-navigation/native';
@@ -25,46 +25,53 @@ const SignIn: React.FC = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.imageContainer}>
+                <Image
+                    source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
+                    style={styles.image}
+                    resizeMode='center'
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Adgangskode"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Adgangskode"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.primary }]}
-                onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
+                <Text style={styles.text}>Ikke bruger endnu?</Text>
+                <Link style={styles.create} push href="/login/createAccount">Opret konto</Link>
+            </View>
 
-            <Text style={styles.text}>Ikke bruger endnu?</Text>
-            <Link style={styles.create} push href="/login/createAccount">Opret konto</Link>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 20,
+    image: {
     },
-    title: {
-        fontSize: 36,
-        marginBottom: 20,
-        textAlign: 'center',
+    container: {
+        justifyContent: 'center',
+        padding: 10,
+        flex: 1,
+        alignItems: "center"
     },
     input: {
         height: 50,
@@ -74,7 +81,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingHorizontal: 10,
         borderRadius: 5,
-        backgroundColor: '#FCF7F2'
+        backgroundColor: '#FCF7F2',
     },
     button: {
         marginTop: 30,
@@ -109,6 +116,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
         textDecorationLine: 'underline',
+    },
+    inputContainer: {
+        justifyContent: 'center',
+    },
+    imageContainer: {
+        justifyContent: 'center',
+        height: 250,
     }
 });
 

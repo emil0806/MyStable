@@ -1,7 +1,7 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, router, Tabs } from "expo-router";
-import { Alert, Pressable, TouchableOpacity } from "react-native";
+import { Alert, Pressable, TouchableOpacity, Image } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -9,6 +9,7 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { getAuth, signOut } from "firebase/auth";
 import { Text } from "react-native";
 import { StyleSheet } from "react-native";
+import { View } from "@/components/Themed";
 
 
 // TabBarIcon component for rendering the FontAwesome icon
@@ -40,6 +41,15 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#000000", // Black when active (hovered)
         tabBarInactiveTintColor: "#405553", // Greyish color when inactive
         headerShown: useClientOnlyValue(false, true),
+
+        tabBarStyle: {
+          backgroundColor: "#fcf7f2",
+          paddingTop: 8,
+        },
+
+        headerStyle: {
+          backgroundColor: "#fcf7f2"
+        }
       }}
     >
       <Tabs.Screen
@@ -47,7 +57,7 @@ export default function TabLayout() {
         options={{
           title: "Stald",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="warehouse" color={color} size={35} />
+            <MaterialIcons name="warehouse" color={color} size={30} />
           ),
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -71,7 +81,7 @@ export default function TabLayout() {
         options={{
           title: "Kalender",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="calendar-month" color={color} size={35} />
+            <MaterialCommunityIcons name="calendar-month" color={color} size={30} />
           ),
         }}
       />
@@ -96,7 +106,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   button: {
     marginRight: 15,
-    backgroundColor: "#f4511e",
+    backgroundColor: "red",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
@@ -104,6 +114,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-  },
+  }
 });
 

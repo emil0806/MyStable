@@ -5,7 +5,7 @@ import {
   Button,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity, Image
 } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
@@ -62,59 +62,67 @@ const SignUp: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Opret konto</Text>
+      <View style={styles.imageContainer}>
+        <Image
+          source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
+          resizeMode='center'
+        />
+      </View>
 
       {error && <Text style={styles.errorText}>{error}</Text>}
       {success && <Text style={styles.successText}>{success}</Text>}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Navn"
-        value={name}
-        onChangeText={setName}
-        autoCapitalize="none"
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Navn"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="none"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Telefon"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-        autoCapitalize="none"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Telefon"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+          autoCapitalize="none"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Adgangskode"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Adgangskode"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Bekræft adgangskode"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Bekræft adgangskode"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
 
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={handleSignUp}
-      >
-        <Text style={styles.buttonText}>Opret konto</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={handleSignUp}
+        >
+          <Text style={styles.buttonText}>Opret konto</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -124,6 +132,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    alignItems: "center",
   },
   title: {
     fontSize: 36,
@@ -163,6 +172,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  inputContainer: {
+    justifyContent: 'center',
+  },
+  imageContainer: {
+    justifyContent: 'center',
+    height: 250,
+  }
 });
 
 export default SignUp;
