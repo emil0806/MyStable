@@ -19,6 +19,7 @@ export default function Profile() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [currentHorseData, setCurrentHorseData] = useState<any>(null); // Track horse being edited
 
   //fetch user profile
   const fetchUserProfile = async () => {
@@ -36,7 +37,7 @@ export default function Profile() {
           email: userData.email,
           name: userData.name,
           phone: userData.phone,
-          horsesCount: userData.horses ? userData.horses.length : 0,
+          horsesCount: 0, // Set initial placeholder, will update in fetchUserHorses
         });
       } else {
         console.log("No such document");
@@ -65,19 +66,29 @@ export default function Profile() {
       });
 
       setHorses(userHorses);
+      setUserProfile((prevProfile) => ({
+        ...prevProfile,
+        horsesCount: userHorses.length, // Update with the actual count
+      }));
     } catch (e) {
       setError("Failed to fetch horses");
     }
   };
 
+  const handleEditHorse = (horseData: any) => {
+    setCurrentHorseData(horseData);
+    setModalVisible(true);
+  };
 
   const handleAddHorse = () => {
+    setCurrentHorseData(null); // Clear form for new horse
     setModalVisible(true);
   };
 
   const handleModalClose = () => {
     setModalVisible(false);
   };
+
   const handleSubmit = () => {
     fetchUserHorses();
     setModalVisible(false);
@@ -102,15 +113,16 @@ export default function Profile() {
 
       <FlatList
         data={horses}
-        style={styles.flat}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <HorseCard
+            id={item.id}
             name={item.name}
             breed={item.breed}
-            dob={item.dob}
+            age={item.age}
             color={item.color}
             feedings={item.feedings}
+            onEdit={handleEditHorse} // Pass editing function
           />
         )}
       />
@@ -121,6 +133,7 @@ export default function Profile() {
         visible={isModalVisible}
         onClose={handleModalClose}
         onSubmit={handleSubmit}
+        horseData={currentHorseData} // Pass data for pre-filling in edit mode
       />
     </View>
   );
@@ -138,6 +151,6 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Space between HorseCard and AddHorseButton
   },
   flat: {
-    width: "85%",
+    width: "100%",
   },
 });
