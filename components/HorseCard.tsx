@@ -13,6 +13,7 @@ interface Feeding {
 }
 
 interface HorseCardProps {
+  id: string,
   name: string;
   breed: string;
   age: string;
@@ -42,7 +43,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
         <View style={styles.textContainer}>
           <Text style={styles.title}>{name}</Text>
           <Text>{breed}</Text>
-          <Text>{}</Text>
+          <Text>{ }</Text>
           <Text>{color}</Text>
         </View>
       </View>
@@ -118,6 +119,9 @@ const styles = StyleSheet.create({
     color: "#000", // Black text
     fontSize: 16, // Font size similar to the image
     fontFamily: "Inter-Regular", // Apply Inter Regular font to button text
+  },
+  feed: {
+
   },
 });
 
