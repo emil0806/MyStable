@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import {
   getFirestore,
@@ -13,6 +14,8 @@ import {
   getDocs,
   doc,
   getDoc,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
@@ -27,6 +30,7 @@ export default function TabOneScreen() {
   const [stable, setStable] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUserReady, setIsUserReady] = useState(false);
+  const [invitation, setInvitation] = useState<any | null>(null);
   const { colors } = useTheme();
   const router = useRouter();
   const segments = useSegments();
@@ -64,6 +68,82 @@ export default function TabOneScreen() {
       }
     }
     setLoading(false);
+  };
+
+  const fetchUserInvitation = async () => {
+    const db = getFirestore();
+    const user = auth.currentUser;
+
+    if (user) {
+      const invitationsRef = collection(db, "invitations");
+      const q = query(invitationsRef, where("email", "==", user.email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const invitationData = querySnapshot.docs[0].data;
+        setInvitation(invitationData);
+      } else {
+        setInvitation(null);
+      }
+    }
+  };
+
+  const handleAcceptInvitations = async () => {
+    if (!invitation) {
+      return;
+    }
+
+    try {
+      const db = getFirestore();
+      const currentUserId = auth.currentUser!.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+
+      await updateDoc(userDocRef, {
+        stableId: invitation.stableId,
+      });
+
+      const stableDocRef = doc(db, "stables", invitation.stableId);
+      const stableSnapshot = await getDoc(stableDocRef);
+      if (stableSnapshot.exists()) {
+        const stableData = stableSnapshot.data();
+
+        const updatedMembers = stableData.members
+          ? [...stableData.members, currentUserId]
+          : [currentUserId];
+
+        await updateDoc(stableDocRef, {
+          members: updatedMembers,
+          numberOfMembers: updatedMembers.length,
+        });
+      }
+
+      const invitationDocRef = doc(db, "inviations", invitation.id);
+      await deleteDoc(invitationDocRef);
+
+      setInvitation(null);
+      fetchUserStable();
+      Alert.alert("Du er nu medlem af stalden!");
+    } catch (error) {
+      console.error("Fejl ved accept ", error);
+      Alert.alert("Fejl, kunne ikke acceptere invitation!");
+    }
+  };
+
+  const handleDeclineInvitations = async () => {
+    if (!invitation) {
+      return;
+    }
+
+    try {
+      const invitationDocRef = doc(db, "invitations", invitation.id);
+      await deleteDoc(invitationDocRef);
+
+      setInvitation(null);
+      Alert.alert("Du har afvist invitationen!");
+    } catch (error) {
+      console.error("Fejl ve afvisning af invitation ", error);
+      Alert.alert("Fejl ved afvisning af invitation!");
+    }
   };
 
   useEffect(() => {
@@ -161,7 +241,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
+    alignSelf: "center",
   },
   buttonText: {
     color: "#000",

@@ -8,11 +8,17 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { getFirestore, collection, addDoc, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  arrayUnion,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-
 
 export default function CreateStableScreen() {
   const [stableName, setStableName] = useState("");
@@ -100,7 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#6e8e8a", // Match baggrundsfarven fra login-siden
+    backgroundColor: "#fcf7f2", // Match baggrundsfarven fra login-siden
   },
   title: {
     fontSize: 36,

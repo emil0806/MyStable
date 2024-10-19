@@ -91,8 +91,8 @@ export default function AddMember() {
       const memberData = memberDoc.data() as UserData;
       const memberId = memberDoc.id;
 
-      if(memberData.stableId) {
-        Alert.alert("Fejl, denne bruger er allerede medlem af en anden stald.")
+      if (memberData.stableId) {
+        Alert.alert("Fejl, denne bruger er allerede medlem af en anden stald.");
         return;
       }
       await addInvitation(memberId, stableId);
@@ -105,9 +105,8 @@ export default function AddMember() {
     }
   };
 
-  const addInvitation = async (invitedUserId: String, stableId: String) {
-
-    try{
+  const addInvitation = async (invitedUserId: String, stableId: String) => {
+    try {
       const db = getFirestore();
       await addDoc(collection(db, "invitations"), {
         invitedUserId,
@@ -116,11 +115,10 @@ export default function AddMember() {
         Timestamp: new Date(),
       });
       console.log("Invitation sendt!");
-    } catch(error) {
-      console.error("Fejl med at sende invitation! ", error)
+    } catch (error) {
+      console.error("Fejl med at sende invitation! ", error);
     }
   };
-
 
   return (
     <View style={styles.container}>

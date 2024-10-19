@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#6e8e8a",
+    backgroundColor: "#fcf7f2",
   },
   stableCard: {
     backgroundColor: "#FFFFFF",
