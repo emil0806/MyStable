@@ -76,11 +76,12 @@ export default function TabOneScreen() {
 
     if (user) {
       const invitationsRef = collection(db, "invitations");
-      const q = query(invitationsRef, where("email", "==", user.email));
+      const q = query(invitationsRef, where("invitedUserId", "==", user.uid));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const invitationData = querySnapshot.docs[0].data;
+        const invitationData = querySnapshot.docs[0].data();
+        console.log("Fetched invitation:", invitationData);
         setInvitation(invitationData);
       } else {
         setInvitation(null);
@@ -88,7 +89,7 @@ export default function TabOneScreen() {
     }
   };
 
-  const handleAcceptInvitations = async () => {
+  const handleAcceptInvitation = async () => {
     if (!invitation) {
       return;
     }
@@ -110,14 +111,13 @@ export default function TabOneScreen() {
         const updatedMembers = stableData.members
           ? [...stableData.members, currentUserId]
           : [currentUserId];
-
         await updateDoc(stableDocRef, {
           members: updatedMembers,
-          numberOfMembers: updatedMembers.length,
+          numOfMembers: updatedMembers.length - 1,
         });
       }
 
-      const invitationDocRef = doc(db, "inviations", invitation.id);
+      const invitationDocRef = doc(db, "invitations", invitation.id);
       await deleteDoc(invitationDocRef);
 
       setInvitation(null);
@@ -129,7 +129,7 @@ export default function TabOneScreen() {
     }
   };
 
-  const handleDeclineInvitations = async () => {
+  const handleDeclineInvitation = async () => {
     if (!invitation) {
       return;
     }
@@ -141,7 +141,7 @@ export default function TabOneScreen() {
       setInvitation(null);
       Alert.alert("Du har afvist invitationen!");
     } catch (error) {
-      console.error("Fejl ve afvisning af invitation ", error);
+      console.error("Fejl ved afvisning af invitation ", error);
       Alert.alert("Fejl ved afvisning af invitation!");
     }
   };
@@ -152,9 +152,11 @@ export default function TabOneScreen() {
         // When user is authenticated, set the user readiness flag and fetch data
         setIsUserReady(true);
         fetchUserStable(); // Fetch stable info when the user is authenticated
+        fetchUserInvitation();
       } else {
         setIsUserReady(false); // No authenticated user
         setStable(null);
+        setInvitation(null);
         setLoading(false); // Stop loading if no user is authenticated
       }
     });
@@ -218,6 +220,26 @@ export default function TabOneScreen() {
         >
           <Text style={styles.buttonText}>Se alle stalde</Text>
         </TouchableOpacity>
+
+        {invitation && (
+          <View style={styles.stableCard}>
+            <Text style={styles.stableInfo}>
+              Du er blevet inviteret til at deltage i {invitation.stableName}
+            </Text>
+            <TouchableOpacity
+              style={styles.addMemberButton}
+              onPress={handleAcceptInvitation}
+            >
+              <Text style={styles.buttonText}>Accepter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.addMemberButton}
+              onPress={handleDeclineInvitation}
+            >
+              <Text style={styles.buttonText}>Afvis</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </ScrollView>
   );

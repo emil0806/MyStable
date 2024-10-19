@@ -130,10 +130,7 @@ export default function AddMember() {
         value={email}
         onChangeText={setEmail}
       />
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={addMember}
-      >
+      <TouchableOpacity style={[styles.button]} onPress={addMember}>
         <Text style={styles.buttonText}>Tilføj medlem</Text>
       </TouchableOpacity>
     </View>
@@ -145,7 +142,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#6e8e8a",
+    backgroundColor: "#fcf7f2",
   },
   title: {
     fontSize: 36,
@@ -168,6 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
+    backgroundColor: "#FFFFFF",
   },
   buttonText: {
     color: "#000000",
