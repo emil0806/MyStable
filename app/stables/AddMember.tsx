@@ -17,6 +17,8 @@ import {
   doc,
   getDoc,
   arrayUnion,
+  addDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
@@ -63,6 +65,10 @@ export default function AddMember() {
     fetchUserStableId();
   }, []);
 
+  interface UserData {
+    stableId?: String;
+  }
+
   const addMember = async () => {
     if (!stableId) {
       Alert.alert("Fejl", "Stald ID kunne ikke findes.");
@@ -82,31 +88,39 @@ export default function AddMember() {
 
       // Hent brugerens UID
       const memberDoc = querySnapshot.docs[0];
+      const memberData = memberDoc.data() as UserData;
       const memberId = memberDoc.id;
 
-      // Opdater stalden med brugerens UID som medlem
-      const stableRef = doc(db, "stables", stableId);
-      const stableSnapshot = await getDoc(stableRef);
-      const currentNumOfMembers = stableSnapshot.data()?.numOfMembers || 0;
+      if(memberData.stableId) {
+        Alert.alert("Fejl, denne bruger er allerede medlem af en anden stald.")
+        return;
+      }
+      await addInvitation(memberId, stableId);
 
-      await updateDoc(stableRef, {
-        members: arrayUnion(memberId), // Tilføj memberId til members-arrayet
-        numOfMembers: currentNumOfMembers + 1, // Øg antal medlemmer
-      });
-
-      // Opdater brugerens stableId felt
-      const userRef = doc(db, "users", memberId);
-      await updateDoc(userRef, {
-        stableId: stableId, // Opdater brugerens stableId felt
-      });
-
-      Alert.alert("Succes", "Medlem tilføjet til stalden!");
+      Alert.alert("Succes", "Invitation sendt!");
       router.push("/(tabs)/"); // Navigerer tilbage til oversigtssiden
     } catch (error) {
       console.error("Fejl ved tilføjelse af medlem: ", error);
       Alert.alert("Fejl", "Der skete en fejl under tilføjelsen af medlemmet.");
     }
   };
+
+  const addInvitation = async (invitedUserId: String, stableId: String) {
+
+    try{
+      const db = getFirestore();
+      await addDoc(collection(db, "invitations"), {
+        invitedUserId,
+        stableId,
+        status: "pending",
+        Timestamp: new Date(),
+      });
+      console.log("Invitation sendt!");
+    } catch(error) {
+      console.error("Fejl med at sende invitation! ", error)
+    }
+  };
+
 
   return (
     <View style={styles.container}>

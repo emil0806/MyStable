@@ -139,7 +139,6 @@ export default function TabOneScreen() {
           <Text style={styles.buttonText}>Se alle stalde</Text>
         </TouchableOpacity>
       </View>
-
     </ScrollView>
   );
 }
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FCF7F2",
     padding: 15,
     marginBottom: 10,
-    alignItems: "center"
+    alignItems: "center",
   },
   stableTitle: {
     fontSize: 24,
@@ -200,5 +199,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000000",
     backgroundColor: "#fcf7f2",
-  }
+  },
 });
