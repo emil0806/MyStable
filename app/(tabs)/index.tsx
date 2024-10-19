@@ -80,9 +80,9 @@ export default function TabOneScreen() {
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const invitationData = querySnapshot.docs[0].data();
-        console.log("Fetched invitation:", invitationData);
-        setInvitation(invitationData);
+        const invitationDoc = querySnapshot.docs[0];
+        const invitationData = invitationDoc.data();
+        setInvitation({ ...invitationData, id: invitationDoc.id });
       } else {
         setInvitation(null);
       }
@@ -149,19 +149,17 @@ export default function TabOneScreen() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // When user is authenticated, set the user readiness flag and fetch data
         setIsUserReady(true);
-        fetchUserStable(); // Fetch stable info when the user is authenticated
+        fetchUserStable();
         fetchUserInvitation();
       } else {
-        setIsUserReady(false); // No authenticated user
+        setIsUserReady(false);
         setStable(null);
         setInvitation(null);
-        setLoading(false); // Stop loading if no user is authenticated
+        setLoading(false);
       }
     });
 
-    // Cleanup the auth state listener when the component unmounts
     return () => unsubscribe();
   }, []);
 
@@ -301,6 +299,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
   },
 });
