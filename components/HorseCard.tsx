@@ -7,13 +7,15 @@ import {
   StyleSheet,
 } from "react-native";
 
+// Define the Feeding interface here
 interface Feeding {
   food: string;
   quantity: string;
 }
 
+// Define HorseCardProps with the feedings array
 interface HorseCardProps {
-  id: string,
+  id: string;
   name: string;
   breed: string;
   age: string;
@@ -43,10 +45,11 @@ const HorseCard: React.FC<HorseCardProps> = ({
         <View style={styles.textContainer}>
           <Text style={styles.title}>{name}</Text>
           <Text>{breed}</Text>
-          <Text>{ }</Text>
+          <Text>{age}</Text>
           <Text>{color}</Text>
         </View>
       </View>
+      {/* Feeding details */}
       <View style={styles.feed}>
         {feedings.map((feeding, index) => (
           <View key={index} style={styles.feedRow}>
@@ -60,7 +63,6 @@ const HorseCard: React.FC<HorseCardProps> = ({
           <Text style={styles.buttonText}>Opdater oplysninger</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -82,17 +84,16 @@ const styles = StyleSheet.create({
     width: 330,
   },
   header: {
-    flexDirection: "row", // Align text and image in a row
-    justifyContent: "space-between", // Space between title and image
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   textContainer: {
-    flex: 1, // Allow text to take up remaining space
+    flex: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    fontFamily: "Inter-Bold", // Apply Inter Bold font to the title
   },
   feedRow: {
     flexDirection: "row",
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   foodText: {
-    flex: 1, // Wraps within the available space
+    flex: 1,
     flexWrap: "wrap",
     fontSize: 16,
     marginRight: 10,
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   buttonContainer: {
-    alignItems: "center"
+    alignItems: "center",
   },
   button: {
     marginTop: 10,
@@ -123,13 +124,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fcf7f2",
   },
   buttonText: {
-    color: "#000", // Black text
+    color: "#000",
     fontSize: 16,
-    textAlign: "center"
+    textAlign: "center",
   },
-  feed: {
-
-  },
+  feed: {},
 });
 
 export default HorseCard;
