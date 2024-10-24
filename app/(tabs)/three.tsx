@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, TouchableOpacity, Text } from "react-native";
 import HorseCard from "@/components/HorseCard";
 import AddHorseButton from "@/components/AddHorseButton";
 import ProfileCard from "@/components/ProfileCard";
@@ -66,7 +66,7 @@ export default function Profile() {
       });
 
       setHorses(userHorses);
-      setUserProfile((prevProfile) => ({
+      setUserProfile((prevProfile: any) => ({
         ...prevProfile,
         horsesCount: userHorses.length, // Update with the actual count
       }));
@@ -101,6 +101,7 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
+
       {/* Display ProfileCard only if userProfile data is available */}
       {userProfile && (
         <ProfileCard
@@ -110,7 +111,11 @@ export default function Profile() {
           horsesCount={userProfile.horsesCount}
         />
       )}
-      <AddHorseButton onPress={handleAddHorse} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={[styles.button]} onPress={handleAddHorse}>
+          <Text style={styles.buttonText}>+ Tilføj hest</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.listContainer}>
         <FlatList
           style={styles.flat}
@@ -158,5 +163,29 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 10,
     marginTop: 20,
+  },
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: '#000000',
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    flexDirection: "row", // Align the buttons horizontally
+    justifyContent: "center", // Center the buttons horizontally
+    alignItems: "center", // Align the buttons vertically
+    marginTop: 10,
+    paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
+    backgroundColor: "#fcf7f2",
   },
 });
