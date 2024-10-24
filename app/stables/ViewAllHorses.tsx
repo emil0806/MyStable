@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, ActivityIndicator } from "react-native";
-import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { Text, View } from "@/components/Themed";
 import { auth } from "@/firebaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
@@ -11,7 +19,7 @@ type Horse = {
   age: number;
   breed: string;
   ownerId: string;
-}
+};
 
 export default function ViewAllHorsesScreen() {
   const [horses, setHorses] = useState<Horse[]>([]);
@@ -99,12 +107,16 @@ export default function ViewAllHorsesScreen() {
         horses.map((horse, index) => (
           <View key={index} style={styles.horseCard}>
             <Text style={styles.horseTitle}>{horse.name || "No Name"}</Text>
-            <Text style={styles.horseInfo}>Alder: {horse.age || "Unknown"}</Text>
-            <Text style={styles.horseInfo}>Race: {horse.breed || "Unknown"}</Text>
+            <Text style={styles.horseInfo}>
+              Alder: {horse.age || "Unknown"}
+            </Text>
+            <Text style={styles.horseInfo}>
+              Race: {horse.breed || "Unknown"}
+            </Text>
           </View>
         ))
       ) : (
-        <Text style={styles.noHorseText}>No horses found.</Text>
+        <Text style={styles.noHorseText}>Der er ingen heste i stalden.</Text>
       )}
     </ScrollView>
   );
@@ -140,12 +152,9 @@ const styles = StyleSheet.create({
     color: "#000", // Sikre tekstfarven er synlig
   },
   noHorseText: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    textAlign: "center",
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#000",
     marginTop: 20,
   },
 });
-
-
-

@@ -110,24 +110,25 @@ export default function Profile() {
           horsesCount={userProfile.horsesCount}
         />
       )}
-
-      <FlatList
-        data={horses}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <HorseCard
-            id={item.id}
-            name={item.name}
-            breed={item.breed}
-            age={item.age}
-            color={item.color}
-            feedings={item.feedings}
-            onEdit={handleEditHorse} // Pass editing function
-          />
-        )}
-      />
-
       <AddHorseButton onPress={handleAddHorse} />
+      <View style={styles.listContainer}>
+        <FlatList
+          style={styles.flat}
+          data={horses}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <HorseCard
+              id={item.id}
+              name={item.name}
+              breed={item.breed}
+              age={item.age}
+              color={item.color}
+              feedings={item.feedings}
+              onEdit={handleEditHorse} // Pass editing function
+            />
+          )}
+        />
+      </View>
 
       <AddHorseModal
         visible={isModalVisible}
@@ -143,7 +144,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
     paddingTop: 10,
     backgroundColor: "#fcf7f2",
     paddingBottom: 30,
@@ -153,5 +153,10 @@ const styles = StyleSheet.create({
   },
   flat: {
     width: "100%",
+    marginBottom: 150,
+  },
+  listContainer: {
+    paddingHorizontal: 10,
+    marginTop: 20,
   },
 });

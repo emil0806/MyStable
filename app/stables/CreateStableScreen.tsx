@@ -45,8 +45,8 @@ export default function CreateStableScreen() {
         name: stableName,
         phone: phone,
         email: email,
-        numOfMembers: 0, // Start med 0 medlemmer, da de tilføjes senere
-        admin: user.uid, // Brugeren bliver admin af stalden
+        numOfMembers: 0,
+        admin: user.uid,
         members: arrayUnion(user.uid),
       });
 

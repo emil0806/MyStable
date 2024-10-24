@@ -49,7 +49,6 @@ const AddHorseModal: React.FC<{
       return;
     }
 
-
     if (!name || !breed || !age || !color) {
       setError("All fields are required");
       console.log("Validation failed");
@@ -100,7 +99,6 @@ const AddHorseModal: React.FC<{
     <Modal visible={visible} animationType="slide" transparent={true}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <View style={styles.modalContent}>
-
           {/* Horse details fields */}
           <TextInput
             style={styles.input}
@@ -119,7 +117,6 @@ const AddHorseModal: React.FC<{
             placeholder="Alder"
             value={age}
             onChangeText={(text) => {
-              console.log("Age input changed:", text); // Log age input changes
               setAge(text);
             }}
             keyboardType="numeric" // Allows only numeric input
@@ -157,9 +154,7 @@ const AddHorseModal: React.FC<{
             style={styles.addButton}
             onPress={handleAddFeedingRow}
           >
-            <Text style={styles.addButtonText}>
-              + Tilføj mulighed
-            </Text>
+            <Text style={styles.addButtonText}>+ Tilføj mulighed</Text>
           </TouchableOpacity>
 
           {/* Submit and Cancel buttons */}

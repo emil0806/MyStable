@@ -11,7 +11,6 @@ import { Text } from "react-native";
 import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 
-
 // TabBarIcon component for rendering the FontAwesome icon
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -28,7 +27,7 @@ export default function TabLayout() {
     signOut(auth)
       .then(() => {
         Alert.alert("Du er logget ud.");
-        router.replace('/login');
+        router.replace("/login");
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -41,6 +40,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#000000", // Black when active (hovered)
         tabBarInactiveTintColor: "#405553", // Greyish color when inactive
         headerShown: useClientOnlyValue(false, true),
+        headerTitle: "",
 
         tabBarStyle: {
           backgroundColor: "#fcf7f2",
@@ -48,8 +48,8 @@ export default function TabLayout() {
         },
 
         headerStyle: {
-          backgroundColor: "#fcf7f2"
-        }
+          backgroundColor: "#fcf7f2",
+        },
       }}
     >
       <Tabs.Screen
@@ -81,7 +81,11 @@ export default function TabLayout() {
         options={{
           title: "Kalender",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="calendar-month" color={color} size={30} />
+            <MaterialCommunityIcons
+              name="calendar-month"
+              color={color}
+              size={30}
+            />
           ),
         }}
       />
@@ -114,6 +118,5 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-  }
+  },
 });
-

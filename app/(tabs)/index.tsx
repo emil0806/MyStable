@@ -35,6 +35,12 @@ export default function TabOneScreen() {
   const router = useRouter();
   const segments = useSegments();
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserInvitation();
+    }, [])
+  );
+
   const fetchUserStable = async () => {
     setLoading(true);
     const db = getFirestore();

@@ -64,6 +64,7 @@ export default function ViewAllStablesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 100,
     padding: 20,
     backgroundColor: "#fcf7f2",
   },

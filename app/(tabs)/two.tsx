@@ -11,22 +11,62 @@ import {
 } from "react-native";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { View } from "@/components/Themed";
-import { addDoc, collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore';
-import { auth, db } from '@/firebaseConfig';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from "firebase/firestore";
+import { auth, db } from "@/firebaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
 
 // Opsætning af lokaliserede ugedage og måneder til dansk
-LocaleConfig.locales['da'] = {
+LocaleConfig.locales["da"] = {
   monthNames: [
-    'Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'December'
+    "Januar",
+    "Februar",
+    "Marts",
+    "April",
+    "Maj",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "December",
   ],
-  monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
-  dayNames: ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'],
-  dayNamesShort: ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'],
-  today: "I dag"
+  monthNamesShort: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Maj",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Dec",
+  ],
+  dayNames: [
+    "Søndag",
+    "Mandag",
+    "Tirsdag",
+    "Onsdag",
+    "Torsdag",
+    "Fredag",
+    "Lørdag",
+  ],
+  dayNamesShort: ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"],
+  today: "I dag",
 };
-LocaleConfig.defaultLocale = 'da';
+LocaleConfig.defaultLocale = "da";
 
 interface Event {
   id: string;
@@ -47,17 +87,20 @@ export default function CalendarScreen() {
   const [eventTime, setEventTime] = useState("");
   const [eventUser, setEventUser] = useState("");
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false); // Track if the current user is an admin
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isMember, setIsMember] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    fetchUserStable();
-  }, []);
+    if (stable?.isMember) {
+      fetchEvents();
+    }
+  }, [stable]);
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchEvents();
+      fetchUserStable();
     }, [])
   );
 
@@ -82,10 +125,14 @@ export default function CalendarScreen() {
             const stableData = stableSnapshot.data();
 
             // Tjek, om brugeren er admin eller medlem
-            const isAdmin = stableData?.admin === user.uid;
-            const isMember = stableData?.members?.includes(user.uid);
+            const admin = stableData?.admin === user.uid;
+            const member = stableData?.members?.includes(user.uid);
 
-            setStable({ ...stableData, isAdmin, isMember });
+            setStable({
+              ...stableData,
+              isAdmin: admin,
+              isMember: member,
+            });
           } else {
             setStable(null);
           }
@@ -95,16 +142,18 @@ export default function CalendarScreen() {
   };
 
   const fetchEvents = async () => {
-    try {
-      const eventsCollection = collection(db, "events");
-      const eventsSnapshot = await getDocs(eventsCollection);
-      const fetchedEvents: Event[] = eventsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Event[];
-      setEvents(fetchedEvents);
-    } catch (error) {
-      console.error("Fejl ved hentning af begivenheder: ", error);
+    if (stable?.isMember) {
+      try {
+        const eventsCollection = collection(db, "events");
+        const eventsSnapshot = await getDocs(eventsCollection);
+        const fetchedEvents: Event[] = eventsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Event[];
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Fejl ved hentning af begivenheder: ", error);
+      }
     }
   };
 
@@ -127,7 +176,10 @@ export default function CalendarScreen() {
 
   const handleSaveEvent = async () => {
     if (!eventTitle) {
-      Alert.alert("Titel krævet", "Indtast venligst en titel for begivenheden.");
+      Alert.alert(
+        "Titel krævet",
+        "Indtast venligst en titel for begivenheden."
+      );
       return;
     }
 
@@ -145,7 +197,7 @@ export default function CalendarScreen() {
       } else {
         // Add new event to Firebase
         await addDoc(collection(db, "events"), newEvent);
-        Alert.alert('Begivenheden er gemt!');
+        Alert.alert("Begivenheden er gemt!");
       }
 
       // Fetch updated events for the selected date to show the newly created task
@@ -158,8 +210,8 @@ export default function CalendarScreen() {
       setEventTime("");
       setEditingEventId(null);
     } catch (error) {
-      console.error('Fejl ved lagring af begivenhed: ', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme begivenhed. Prøv igen.');
+      console.error("Fejl ved lagring af begivenhed: ", error);
+      Alert.alert("Fejl", "Kunne ikke gemme begivenhed. Prøv igen.");
     }
   };
 
@@ -174,17 +226,21 @@ export default function CalendarScreen() {
   };
 
   const handleDeleteEvent = (id: string) => {
-    Alert.alert("Slet begivenhed", "Er du sikker på, at du vil slette denne begivenhed?", [
-      { text: "Annuller", style: "cancel" },
-      {
-        text: "Slet",
-        style: "destructive",
-        onPress: () => {
-          const updatedEvents = events.filter((event) => event.id !== id);
-          setEvents(updatedEvents);
+    Alert.alert(
+      "Slet begivenhed",
+      "Er du sikker på, at du vil slette denne begivenhed?",
+      [
+        { text: "Annuller", style: "cancel" },
+        {
+          text: "Slet",
+          style: "destructive",
+          onPress: () => {
+            const updatedEvents = events.filter((event) => event.id !== id);
+            setEvents(updatedEvents);
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   const getEventsForDate = (date: string): Event[] => {
@@ -196,16 +252,16 @@ export default function CalendarScreen() {
 
     // Mark dates with user-added events only
     events.forEach((event) => {
-      if (!event.id.startsWith('default-')) {
+      if (!event.id.startsWith("default-")) {
         if (markedDates[event.date]) {
           if (markedDates[event.date].dots) {
-            markedDates[event.date].dots.push({ color: 'red' });
+            markedDates[event.date].dots.push({ color: "red" });
           } else {
-            markedDates[event.date].dots = [{ color: 'red' }];
+            markedDates[event.date].dots = [{ color: "red" }];
           }
         } else {
           markedDates[event.date] = {
-            dots: [{ color: 'red' }],
+            dots: [{ color: "red" }],
           };
         }
       }
@@ -237,12 +293,11 @@ export default function CalendarScreen() {
   // Funktion til at formatere dato til dd-mm-yyyy
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 fordi måneder er 0-indekserede
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 fordi måneder er 0-indekserede
     const year = String(date.getFullYear()); // Henter hele året (fire cifre)
     return `${day}-${month}-${year}`;
   };
-
 
   return (
     <View style={styles.container}>
@@ -253,61 +308,76 @@ export default function CalendarScreen() {
           markingType={"multi-dot"}
           firstDay={1} // Starter ugen med mandag
           theme={{
-            arrowColor: '#6E8E8A',
-            monthTextColor: '#6E8E8A',
-            calendarBackground: '#fcf7f2',
-            textSectionTitleColor: '#6E8E8A',
-            selectedDayBackgroundColor: '#6E8E8A',
-            selectedDayTextColor: '#ffffff',
-            todayTextColor: '#6E8E8A',
-            dayTextColor: '#2d4150',
-            textDisabledColor: '#d9e1e8'
+            arrowColor: "#6E8E8A",
+            monthTextColor: "#6E8E8A",
+            calendarBackground: "#fcf7f2",
+            textSectionTitleColor: "#6E8E8A",
+            selectedDayBackgroundColor: "#6E8E8A",
+            selectedDayTextColor: "#ffffff",
+            todayTextColor: "#6E8E8A",
+            dayTextColor: "#2d4150",
+            textDisabledColor: "#d9e1e8",
           }}
         />
       </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={onCalendarButtonPress} style={styles.button}>
-          <Text>Tilføj</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text>Tilføj ind/ud</Text>
-        </TouchableOpacity>
-      </View>
+      {stable?.isMember
+        ? stable?.isAdmin && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                onPress={onCalendarButtonPress}
+                style={styles.button}
+              >
+                <Text>Tilføj</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button}>
+                <Text>Tilføj ind/ud</Text>
+              </TouchableOpacity>
+            </View>
+          )
+        : null}
 
-
-
-      {/* Display events for the selected date */}
-      {selectedDate && (
-        <View style={styles.eventsContainer}>
-          <Text style={styles.eventsTitle}>Begivenheder d. {formatDate(selectedDate)}:</Text>
-          {getEventsForDate(selectedDate).length === 0 ? (
-            <Text style={styles.noEventsText}>Ingen begivenheder for denne dato.</Text>
-          ) : (
-            <FlatList
-              data={getEventsForDate(selectedDate)}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.eventItem}>
-                  <Text style={styles.eventTitle}>
-                    {item.title} {item.time ? `kl. ${item.time}` : ""}
-                  </Text>
-                  {stable.isAdmin && (
-                    <View style={styles.eventButtons}>
-                      <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                        <Text style={styles.editButton}>Rediger</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
-                        <Text style={styles.deleteButton}>Slet</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-              )}
-            />
-          )}
-        </View>
-      )}
-
+      {selectedDate ? (
+        stable?.isMember ? (
+          <View style={styles.eventsContainer}>
+            <Text style={styles.eventsTitle}>
+              Begivenheder d. {formatDate(selectedDate)}:
+            </Text>
+            {getEventsForDate(selectedDate).length === 0 ? (
+              <Text style={styles.noEventsText}>
+                Ingen begivenheder for denne dato.
+              </Text>
+            ) : (
+              <FlatList
+                data={getEventsForDate(selectedDate)}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={styles.eventItem}>
+                    <Text style={styles.eventTitle}>
+                      {item.title} {item.time ? `kl. ${item.time}` : ""}
+                    </Text>
+                    {stable?.isAdmin && (
+                      <View style={styles.eventButtons}>
+                        <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                          <Text style={styles.editButton}>Rediger</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => handleDeleteEvent(item.id)}
+                        >
+                          <Text style={styles.deleteButton}>Slet</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                )}
+              />
+            )}
+          </View>
+        ) : (
+          <Text style={styles.text}>
+            Du skal være medlem af en stald for at kunne se begivenheder.
+          </Text>
+        )
+      ) : null}
       {/* Modal for adding/editing events */}
       <Modal
         visible={modalVisible}
@@ -319,7 +389,9 @@ export default function CalendarScreen() {
           <Text style={styles.modalTitle}>
             {editingEventId ? "Rediger begivenhed" : "Tilføj begivenhed"}
           </Text>
-          <Text style={styles.modalLabel}>Dato: {formatDate(selectedDate)}</Text>
+          <Text style={styles.modalLabel}>
+            Dato: {formatDate(selectedDate)}
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="Titel for begivenhed"
@@ -350,7 +422,7 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fcf7f2',
+    backgroundColor: "#fcf7f2",
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 20,
@@ -358,7 +430,7 @@ const styles = StyleSheet.create({
   eventsContainer: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#fcf7f2',
+    backgroundColor: "#fcf7f2",
   },
   eventsTitle: {
     fontSize: 18,
@@ -374,7 +446,7 @@ const styles = StyleSheet.create({
   eventItem: {
     borderBottomWidth: 1,
     borderBottomColor: "#000000",
-    backgroundColor: '#fcf7f2',
+    backgroundColor: "#fcf7f2",
     margin: 0,
     paddingTop: 8,
     paddingBottom: 5,
@@ -383,7 +455,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     margin: 0,
-
   },
   eventButtons: {
     flexDirection: "row",
@@ -409,7 +480,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000000",
     backgroundColor: "#fcf7f2",
-    color: "red"
+    color: "red",
   },
   modalContainer: {
     flex: 1,
@@ -435,9 +506,9 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     borderWidth: 2,
-    borderColor: '#6E8E8A',
+    borderColor: "#6E8E8A",
     borderRadius: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
     margin: 10,
   },
   buttonContainer: {
@@ -457,5 +528,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000000",
     backgroundColor: "#fcf7f2",
-  }
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
+    margin: 0,
+    textAlign: "center",
+  },
 });

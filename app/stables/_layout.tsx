@@ -3,14 +3,18 @@ import React from "react";
 
 export default function StableLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false, title: "", headerTitle: "" }}>
       <Stack.Screen
         name="CreateStableScreen"
-        options={{ headerShown: false, title: "Opret Stald" }}
+        options={{ headerShown: false, title: "", headerTitle: "" }}
       />
       <Stack.Screen
         name="ViewAllStables"
-        options={{ headerShown: false, title: "Alle Stalde" }}
+        options={{ headerShown: false, title: "", headerTitle: "" }}
+      />
+      <Stack.Screen
+        name="AddMember"
+        options={{ headerShown: false, title: "", headerTitle: "" }}
       />
     </Stack>
   );
