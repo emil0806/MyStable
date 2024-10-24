@@ -19,11 +19,12 @@ import {
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Text, View } from "@/components/Themed";
-import CreateStableLink from "../stables/CreateStableLink";
 import { useRouter, useSegments } from "expo-router";
 import { useFocusEffect, useTheme } from "@react-navigation/native";
 import ViewAllHorsesScreen from "../stables/ViewAllHorses";
 import { auth, db } from "@/firebaseConfig";
+import AddHorseButton from "@/components/AddHorseButton"; // Import the Add Horse Button component
+import AddHorseModal from "@/components/AddHorseModal"; // Import the Add Horse Modal component
 import React from "react";
 
 export default function TabOneScreen() {
@@ -31,6 +32,7 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(true);
   const [isUserReady, setIsUserReady] = useState(false);
   const [invitation, setInvitation] = useState<any | null>(null);
+  const [isModalVisible, setModalVisible] = useState(false); // State to manage modal visibility
   const { colors } = useTheme();
   const router = useRouter();
   const segments = useSegments();
@@ -47,7 +49,6 @@ export default function TabOneScreen() {
     const user = auth.currentUser;
 
     if (user) {
-      // Hent brugerens dokument
       const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
 
@@ -62,11 +63,11 @@ export default function TabOneScreen() {
           if (stableSnapshot.exists()) {
             const stableData = stableSnapshot.data();
 
-            // Tjek, om brugeren er admin eller medlem
+            // Check if the user is an admin or member
             const isAdmin = stableData?.admin === user.uid;
             const isMember = stableData?.members?.includes(user.uid);
 
-            setStable({ ...stableData, isAdmin, isMember }); // Gem admin og medlem status
+            setStable({ ...stableData, isAdmin, isMember });
           } else {
             setStable(null);
           }
@@ -152,6 +153,19 @@ export default function TabOneScreen() {
     }
   };
 
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleModalSubmit = () => {
+    closeModal(); // Close the modal after submission
+    fetchUserStable(); // Optionally refresh the stable data
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -195,16 +209,23 @@ export default function TabOneScreen() {
               Antal medlemmer: {stable.numOfMembers}
             </Text>
 
-            {/* Vis kun knappen til at tilføje medlemmer, hvis brugeren er admin */}
+            {/* Show the Add Member and Add Horse buttons side by side if the user is an admin */}
             {stable.isAdmin && (
-              <TouchableOpacity
-                style={styles.addMemberButton}
-                onPress={() => router.push("../stables/AddMember")}
-              >
-                <Text style={styles.buttonText}>Tilføj medlem</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.addMemberButton}
+                  onPress={() => router.push("../stables/AddMember")}
+                >
+                  <Text style={styles.buttonText}>+ Tilføj medlem</Text>
+                </TouchableOpacity>
+
+                {/* Add Horse Button for Admins */}
+                <AddHorseButton onPress={openModal} />
+              </View>
             )}
           </View>
+
+          {/* View All Horses */}
           <ViewAllHorsesScreen />
         </>
       ) : (
@@ -217,6 +238,15 @@ export default function TabOneScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Add Horse Modal */}
+      <AddHorseModal
+        visible={isModalVisible}
+        onClose={closeModal}
+        onSubmit={handleModalSubmit}
+      />
+
+      {/* Invitations and Stables */}
       <View style={styles.stableCard}>
         <TouchableOpacity
           style={styles.createStableButton}
@@ -252,29 +282,45 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#fcf7f2", // Light background for the screen
   },
-  title: {
-    fontSize: 36,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  createStableButton: {
+  buttonContainer: {
+    flexDirection: "row", // Align the buttons horizontally
+    justifyContent: "center", // Center the buttons horizontally
+    alignItems: "center", // Align the buttons vertically
     marginTop: 10,
-    marginBottom: 50,
-    width: 200,
-    padding: 10,
+    paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
+    backgroundColor: "#fcf7f2",
+
+  },
+  addMemberButton: {
+    flex: 1, // Equal space for both buttons
+    paddingVertical: 12, // Equal padding for top and bottom
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000000", // Set border color to avoid the black background look
+    backgroundColor: "#ffffff", // White background
+    marginRight: 10, // Space between buttons
+    alignItems: "center", // Ensure text is centered horizontally
+    justifyContent: "center", // Ensure text is centered vertically
+  },
+  addHorseButton: {
+    flex: 1, // Equal space for both buttons
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#ffffff",
-    alignSelf: "center",
+    backgroundColor: "#ffffff", // White background
+    alignItems: "center", // Ensure text is centered horizontally
+    justifyContent: "center", // Ensure text is centered vertically
   },
   buttonText: {
-    color: "#000",
+    color: "#000", // Black text
     fontWeight: "bold",
     fontSize: 16,
-    textAlign: "center",
+    textAlign: "center", // Center text horizontally
   },
   stableCard: {
     backgroundColor: "#FCF7F2",
@@ -293,18 +339,15 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: "#000",
   },
-  noStableText: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginTop: 20,
-  },
-  addMemberButton: {
+  createStableButton: {
     marginTop: 10,
+    marginBottom: 50,
+    width: 200,
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
     backgroundColor: "#ffffff",
+    alignSelf: "center",
   },
 });
