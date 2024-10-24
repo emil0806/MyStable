@@ -19,6 +19,7 @@ import {
   getDocs,
   getFirestore,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { auth, db } from "@/firebaseConfig";
@@ -75,6 +76,8 @@ interface Event {
   description: string;
   time: string;
   user: string;
+  userId: string,
+  stableId: string;
 }
 
 export default function CalendarScreen() {
@@ -132,6 +135,7 @@ export default function CalendarScreen() {
               ...stableData,
               isAdmin: admin,
               isMember: member,
+              stableId: stableId,
             });
           } else {
             setStable(null);
@@ -142,10 +146,10 @@ export default function CalendarScreen() {
   };
 
   const fetchEvents = async () => {
-    if (stable?.isMember) {
+    if (stable?.isMember && stable?.stableId) {
       try {
-        const eventsCollection = collection(db, "events");
-        const eventsSnapshot = await getDocs(eventsCollection);
+        const eventsQuery = query(collection(db, "events"), where("stableId", "==", stable?.stableId));
+        const eventsSnapshot = await getDocs(eventsQuery);
         const fetchedEvents: Event[] = eventsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -188,7 +192,9 @@ export default function CalendarScreen() {
       title: eventTitle,
       description: eventDescription,
       time: eventTime,
-      user: auth.currentUser ? auth.currentUser.uid : "ukendt", // Ensure the user is associated with the event
+      user: null,
+      userId: null,
+      stableId: stable?.stableId,
     };
 
     try {
@@ -241,6 +247,63 @@ export default function CalendarScreen() {
         },
       ]
     );
+  };
+
+  const handleSignUp = async (eventId: string) => {
+    try {
+      const user = auth.currentUser;
+
+      if (!user) {
+        Alert.alert("Bruger ikke fundet", "Du skal være logget ind for at tilmelde dig.");
+        return;
+      }
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (!userSnapshot.exists()) {
+        Alert.alert("Bruger ikke fundet", "Din brugerprofil findes ikke.");
+        return;
+      }
+
+      const userData = userSnapshot.data();
+
+      const eventRef = doc(db, "events", eventId);
+      const eventSnapshot = await getDoc(eventRef);
+
+      if (eventSnapshot.exists()) {
+        const eventData = eventSnapshot.data();
+
+        if (eventData.user) {
+          Alert.alert("Event er allerede taget");
+          return;
+        }
+
+        await updateDoc(eventRef, {
+          user: userData.name,
+          userId: auth.currentUser?.uid
+        });
+
+        fetchEvents();
+      }
+    } catch (error) {
+      console.error("Error signing up for event: ", error);
+    }
+  };
+
+  const handleResign = async (eventId: string) => {
+    try {
+      const eventRef = doc(db, "events", eventId);
+      const eventSnapshot = await getDoc(eventRef);
+
+      await updateDoc(eventRef, {
+        user: null,
+        userId: null,
+      });
+      fetchEvents();
+
+    } catch (error) {
+      console.error("Error resigning from event: ", error);
+    }
   };
 
   const getEventsForDate = (date: string): Event[] => {
@@ -322,18 +385,18 @@ export default function CalendarScreen() {
       </View>
       {stable?.isMember
         ? stable?.isAdmin && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                onPress={onCalendarButtonPress}
-                style={styles.button}
-              >
-                <Text>Tilføj</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button}>
-                <Text>Tilføj ind/ud</Text>
-              </TouchableOpacity>
-            </View>
-          )
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={onCalendarButtonPress}
+              style={styles.button}
+            >
+              <Text>Tilføj</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <Text>Tilføj ind/ud</Text>
+            </TouchableOpacity>
+          </View>
+        )
         : null}
 
       {selectedDate ? (
@@ -352,21 +415,40 @@ export default function CalendarScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <View style={styles.eventItem}>
-                    <Text style={styles.eventTitle}>
-                      {item.title} {item.time ? `kl. ${item.time}` : ""}
-                    </Text>
-                    {stable?.isAdmin && (
-                      <View style={styles.eventButtons}>
-                        <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                          <Text style={styles.editButton}>Rediger</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => handleDeleteEvent(item.id)}
-                        >
-                          <Text style={styles.deleteButton}>Slet</Text>
-                        </TouchableOpacity>
+                    <View style={styles.eventUserContainer}>
+                      <View style={styles.eventInfo}>
+                        <Text style={styles.eventTitle}>
+                          {item.title} {item.time ? `kl. ${item.time}` : ""}
+                        </Text>
+                        <Text style={styles.eventUser}>
+                          {item.user}
+                        </Text>
                       </View>
-                    )}
+
+                      {stable?.isAdmin && (
+                        <View style={styles.eventButtons}>
+                          <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                            <Text style={styles.deleteButton}>Slet</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                            <Text style={styles.editButton}>Rediger</Text>
+                          </TouchableOpacity>
+                          {item.userId === auth.currentUser?.uid ? (
+                            <TouchableOpacity onPress={() => handleResign(item.id)}>
+                              <Text style={styles.resignButton}>Afmeld</Text>
+                            </TouchableOpacity>
+                          ) : item.userId ? (
+                            <Text>Already taken</Text>
+                          ) : (
+                            <TouchableOpacity onPress={() => handleSignUp(item.id)}>
+                              <Text style={styles.signUpButton}>Tilmeld</Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      )}
+
+
+                    </View>
                   </View>
                 )}
               />
@@ -462,6 +544,7 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 8,
     marginBottom: 8,
+    marginRight: 2,
   },
   editButton: {
     alignItems: "center",
@@ -475,7 +558,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     alignItems: "center",
     paddingVertical: 3,
-    paddingHorizontal: 5,
+    paddingHorizontal: 6,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
@@ -535,4 +618,31 @@ const styles = StyleSheet.create({
     margin: 0,
     textAlign: "center",
   },
+  signUpButton: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    backgroundColor: "#fcf7f2",
+    color: "#000000",
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  resignButton: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    backgroundColor: "#fcf7f2",
+    color: "#000000",
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  eventUserContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#fcf7f2"
+  },
+  eventInfo: {
+    backgroundColor: "#fcf7f2"
+  },
+  eventUser: {
+    fontSize: 16,
+  }
 });
