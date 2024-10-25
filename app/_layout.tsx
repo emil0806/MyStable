@@ -5,14 +5,15 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useContext, useEffect, useState } from "react";
 import "react-native-reanimated";
 import { onAuthStateChanged, User } from "firebase/auth";
-
+import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { auth } from "@/firebaseConfig";
+import { Pressable, TouchableOpacity, Text, StyleSheet } from "react-native";
 
 export const ourTheme = {
   ...DefaultTheme, // Extend the default light theme
@@ -84,8 +85,32 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="stables" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ headerTitle: "" }} />
+        <Stack.Screen name="modal" options={{
+          headerStyle: {
+            backgroundColor: "#fcf7f2",
+          },
+          headerTitle: "", headerLeft: () => (
+            <Link href="/(tabs)" asChild>
+              <Pressable style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <FontAwesome
+                  name="arrow-left"
+                  size={14}
+                  color={Colors[colorScheme ?? "light"].text}
+                  style={{ marginRight: 5 }}
+                />
+                <Text style={styles.text}>Stald</Text>
+              </Pressable>
+            </Link>
+          ),
+        }} />
       </Stack>
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 18,
+    color: '#000'
+  },
+});
