@@ -92,6 +92,9 @@ export default function CalendarScreen() {
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [addEventsModalVisible, setAddEventsModalVisible] = useState(false);
+  const [inTime, setInTime] = useState("");
+  const [outTime, setOutTime] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -306,8 +309,62 @@ export default function CalendarScreen() {
     }
   };
 
+  const handleAddInAndOutEvents = async () => {
+    setAddEventsModalVisible(true);
+    setInTime("");
+    setOutTime("");
+  }
+
+  const handleAddInOutEvents = async () => {
+    const today = new Date();
+
+    setAddEventsModalVisible(false);
+
+    for (let i = 0; i < 14; i++) {
+      const eventDate = new Date(today);
+      eventDate.setDate(today.getDate() + i);
+      const dateString = eventDate.toISOString().split("T")[0];
+
+      const existingEvents = getEventsForDate(dateString);
+
+      if (!existingEvents.some(event => event.title === "Ind")) {
+        await addDoc(collection(db, "events"), {
+          date: dateString,
+          title: "Ind",
+          description: "",
+          time: inTime,
+          stableId: stable?.stableId,
+          user: null,
+          userId: null,
+        });
+      }
+
+      if (!existingEvents.some(event => event.title === "Ud")) {
+        await addDoc(collection(db, "events"), {
+          date: dateString,
+          title: "Ud",
+          description: "",
+          time: outTime,
+          stableId: stable?.stableId,
+          user: null,
+          userId: null,
+        });
+      }
+    }
+
+    Alert.alert("Begivenheder tilføjet for de næste 14 dage!");
+    fetchEvents();
+  };
+
+
   const getEventsForDate = (date: string): Event[] => {
-    return events.filter((event) => event.date === date);
+    return events
+      .filter((event) => event.date === date)
+      .sort((a, b) => {
+        const timeA = new Date(`1970-01-01T${a.time}:00Z`);
+        const timeB = new Date(`1970-01-01T${b.time}:00Z`);
+        return timeA.getTime() - timeB.getTime();
+      });
   };
 
   const getMarkedDates = () => {
@@ -392,8 +449,8 @@ export default function CalendarScreen() {
             >
               <Text>Tilføj</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text>Tilføj ind/ud</Text>
+            <TouchableOpacity style={styles.button} onPress={handleAddInAndOutEvents}>
+              <Text>Tilføj ind & ud</Text>
             </TouchableOpacity>
           </View>
         )
@@ -495,6 +552,32 @@ export default function CalendarScreen() {
           />
           <Button title="Gem begivenhed" onPress={handleSaveEvent} />
           <Button title="Annuller" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
+      <Modal
+        visible={addEventsModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setAddEventsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Tilføj "Ind" og "Ud"</Text>
+          <Text style={styles.modalLabel}>Tid for "Ind":</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="f.eks. 08:00"
+            value={inTime}
+            onChangeText={setInTime}
+          />
+          <Text style={styles.modalLabel}>Tid for "Ud":</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="f.eks. 16:00"
+            value={outTime}
+            onChangeText={setOutTime}
+          />
+          <Button title="Tilføj" onPress={handleAddInOutEvents} />
+          <Button title="Annuller" onPress={() => setAddEventsModalVisible(false)} />
         </View>
       </Modal>
     </View>
@@ -604,7 +687,7 @@ const styles = StyleSheet.create({
   button: {
     marginLeft: 10,
     marginRight: 10,
-    width: 100,
+    width: 150,
     alignItems: "center",
     padding: 10,
     borderRadius: 10,
