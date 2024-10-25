@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Platform, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Keyboard } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { collection, getDocs, addDoc, query, where, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, doc, getDoc, Timestamp, orderBy, writeBatch } from 'firebase/firestore';
 import { db, auth } from '@/firebaseConfig';
 
 export default function ModalScreen() {
@@ -37,10 +37,12 @@ export default function ModalScreen() {
   };
 
   const fetchAnnouncements = async () => {
+    deleteOldAnnouncements();
     if (stableId) {
       const announcementsQuery = query(
         collection(db, 'announcements'),
-        where('stableId', '==', stableId)
+        where('stableId', '==', stableId),
+        orderBy('date', 'desc')
       );
       const querySnapshot = await getDocs(announcementsQuery);
       const fetchedAnnouncements = querySnapshot.docs.map((doc) => {
@@ -61,6 +63,8 @@ export default function ModalScreen() {
       return;
     }
 
+    Keyboard.dismiss();
+
     try {
       const user = auth.currentUser;
       if (!user) return;
@@ -73,6 +77,7 @@ export default function ModalScreen() {
         text: newAnnouncement,
         stableId: stableId,
         date: formattedDate,
+        createdAt: Timestamp.fromDate(today),
       });
 
       setNewAnnouncement("");
@@ -83,47 +88,79 @@ export default function ModalScreen() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Meddelelser</Text>
-      <View style={styles.separator} lightColor="#000" darkColor="rgba(255,255,255,0.1)" />
+  const deleteOldAnnouncements = async () => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-      <FlatList
-        data={announcements}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.announcementItem}>
-            <Text style={styles.announcementText}>{item.text}</Text>
-            <Text style={styles.announcementMeta}>— {item.date}</Text>
+    const oldAnnouncementsQuery = query(
+      collection(db, 'announcements'),
+      where('createdAt', '<', Timestamp.fromDate(oneWeekAgo))
+    );
+
+    const querySnapshot = await getDocs(oldAnnouncementsQuery);
+    const batch = writeBatch(db);
+
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref)
+    })
+
+    await batch.commit();
+
+  }
+
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    >
+      <View style={styles.innerContainer}>
+        <Text style={styles.title}>Meddelelser</Text>
+        <View style={styles.separator} lightColor="#000" darkColor="rgba(255,255,255,0.1)" />
+        <FlatList
+          data={announcements}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.announcementItem}>
+              <Text style={styles.announcementText}>{item.text}</Text>
+              <Text style={styles.announcementMeta}>— {item.date}</Text>
+            </View>
+          )}
+        />
+
+
+        {/* Admin-only input for posting new announcements */}
+        {isAdmin && (
+          <View style={styles.adminContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Tilføj ny meddelelse"
+              value={newAnnouncement}
+              onChangeText={setNewAnnouncement}
+            />
+            <TouchableOpacity style={styles.addButton} onPress={handleAddAnnouncement}>
+              <Text style={styles.addButtonText}>Tilføj</Text>
+            </TouchableOpacity>
           </View>
         )}
-      />
+      </View>
+    </KeyboardAvoidingView>
 
-      {/* Admin-only input for posting new announcements */}
-      {isAdmin && (
-        <View style={styles.adminContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Tilføj ny meddelelse"
-            value={newAnnouncement}
-            onChangeText={setNewAnnouncement}
-          />
-          <TouchableOpacity style={styles.addButton} onPress={handleAddAnnouncement}>
-            <Text style={styles.addButtonText}>Tilføj</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fcf7f2",
+    paddingBottom: 30,
+  },
+  innerContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    paddingBottom: 50,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    backgroundColor: "#fcf7f2"
   },
   title: {
     fontSize: 20,
@@ -152,6 +189,7 @@ const styles = StyleSheet.create({
   adminContainer: {
     marginTop: 20,
     width: '100%',
+    backgroundColor: "#fcf7f2"
   },
   input: {
     borderColor: '#000',
