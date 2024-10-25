@@ -91,7 +91,7 @@ export default function AddMember() {
       const memberData = memberDoc.data() as UserData;
       const memberId = memberDoc.id;
 
-      if (memberData.stableId) {
+      if (memberData.stableId !== "") {
         Alert.alert("Fejl, denne bruger er allerede medlem af en anden stald.");
         return;
       }
