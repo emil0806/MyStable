@@ -85,24 +85,30 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="stables" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{
-          headerStyle: {
-            backgroundColor: "#fcf7f2",
-          },
-          headerTitle: "", headerLeft: () => (
-            <Link href="/(tabs)" asChild>
-              <Pressable style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <FontAwesome
-                  name="arrow-left"
-                  size={14}
-                  color={Colors[colorScheme ?? "light"].text}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={styles.text}>Stald</Text>
-              </Pressable>
-            </Link>
-          ),
-        }} />
+        <Stack.Screen
+          name="modal"
+          options={{
+            headerStyle: {
+              backgroundColor: "#fcf7f2",
+            },
+            headerTitle: "",
+            headerLeft: () => (
+              <Link href="/(tabs)" asChild>
+                <Pressable
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="arrow-left"
+                    size={14}
+                    color={Colors[colorScheme ?? "light"].text}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={styles.text}>Stald</Text>
+                </Pressable>
+              </Link>
+            ),
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
@@ -111,6 +117,6 @@ function RootLayoutNav() {
 const styles = StyleSheet.create({
   text: {
     fontSize: 18,
-    color: '#000'
+    color: "#000",
   },
 });
