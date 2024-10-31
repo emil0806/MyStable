@@ -482,27 +482,30 @@ export default function CalendarScreen() {
                         </Text>
                       </View>
 
-                      {stable?.isAdmin && (
-                        <View style={styles.eventButtons}>
-                          <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
-                            <Text style={styles.deleteButton}>Slet</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => handleEditEvent(item)}>
-                            <Text style={styles.editButton}>Rediger</Text>
-                          </TouchableOpacity>
-                          {item.userId === auth.currentUser?.uid ? (
-                            <TouchableOpacity onPress={() => handleResign(item.id)}>
-                              <Text style={styles.resignButton}>Afmeld</Text>
+                      <View style={styles.eventButtons}>
+                        {stable?.isAdmin && (
+                          <View style={styles.eventAdminButtons}>
+                            <TouchableOpacity onPress={() => handleDeleteEvent(item.id)}>
+                              <Text style={styles.deleteButton}>Slet</Text>
                             </TouchableOpacity>
-                          ) : item.userId ? (
-                            <Text>Already taken</Text>
-                          ) : (
-                            <TouchableOpacity onPress={() => handleSignUp(item.id)}>
-                              <Text style={styles.signUpButton}>Tilmeld</Text>
+                            <TouchableOpacity onPress={() => handleEditEvent(item)}>
+                              <Text style={styles.editButton}>Rediger</Text>
                             </TouchableOpacity>
-                          )}
-                        </View>
-                      )}
+                          </View>
+                        )}
+                        {item.userId === auth.currentUser?.uid ? (
+                          <TouchableOpacity onPress={() => handleResign(item.id)}>
+                            <Text style={styles.resignButton}>Afmeld</Text>
+                          </TouchableOpacity>
+                        ) : item.userId ? (
+                          <Text>Optaget</Text>
+                        ) : (
+                          <TouchableOpacity onPress={() => handleSignUp(item.id)}>
+                            <Text style={styles.signUpButton}>Tilmeld</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
 
 
                     </View>
@@ -628,6 +631,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 8,
     marginRight: 2,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  eventAdminButtons: {
+    flexDirection: "row",
+    backgroundColor: "#fcf7f2",
+    gap: 10,
   },
   editButton: {
     alignItems: "center",
