@@ -5,7 +5,8 @@ import {
   Button,
   Text,
   StyleSheet,
-  TouchableOpacity, Image
+  TouchableOpacity,
+  Image,
 } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
@@ -64,8 +65,8 @@ const SignUp: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
-          resizeMode='center'
+          source={require("../assets/images/minStaldLogo.png")} // Replace with your image path
+          resizeMode="center"
         />
       </View>
 
@@ -122,7 +123,6 @@ const SignUp: React.FC = () => {
           <Text style={styles.buttonText}>Opret konto</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -173,12 +173,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   inputContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   imageContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
     height: 250,
-  }
+  },
 });
 
 export default SignUp;
