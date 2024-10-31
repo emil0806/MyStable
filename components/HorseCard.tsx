@@ -150,12 +150,12 @@ const styles = StyleSheet.create({
   },
   foodText: {
     fontSize: 16,
-    flex: 4, // Occupies 80% of the row
+    flex: 3,
     marginRight: 5,
   },
   quantityText: {
     fontSize: 16,
-    flex: 1, // Occupies 20% of the row
+    flex: 1,
     textAlign: "right",
   },
   buttonWrapper: {

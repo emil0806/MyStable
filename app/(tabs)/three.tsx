@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 10,
     backgroundColor: "#fcf7f2",
-    paddingBottom: 30,
+    paddingBottom: 80,
   },
   horseCard: {
     marginBottom: 20,
