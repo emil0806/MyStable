@@ -86,15 +86,18 @@ const HorseCard: React.FC<HorseCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FCF7F2",
+    borderWidth: 0.5,
+    borderColor: "lightgrey",
     borderRadius: 10,
     padding: 15,
     marginVertical: 10,
     alignSelf: "center",
     width: 330,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    elevation: 3,
+    shadowRadius: 5,
   },
   header: {
     flexDirection: "row",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -17,8 +17,7 @@ import {
 import { Text, View } from "@/components/Themed";
 import { auth } from "@/firebaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
-import React from "react";
-import AddHorseModal from "@/components/AddHorseModal"; // Import the modal
+import AddHorseModal from "@/components/AddHorseModal";
 import HorseCard from "@/components/HorseCard";
 
 type Horse = {
@@ -39,7 +38,7 @@ export default function ViewAllHorsesScreen() {
   const [horses, setHorses] = useState<Horse[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedHorse, setSelectedHorse] = useState<Horse | null>(null); // State to track selected horse
+  const [selectedHorse, setSelectedHorse] = useState<Horse | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -82,13 +81,6 @@ export default function ViewAllHorsesScreen() {
 
         const stableData = stableSnap.data();
         const members = stableData?.members || [];
-
-        if (members.length === 0) {
-          console.log("No members in the stable");
-          setLoading(false);
-          return;
-        }
-
         const admin = stableData?.admin === user.uid;
         setStable({ ...stableData, isAdmin: admin });
 
@@ -101,7 +93,7 @@ export default function ViewAllHorsesScreen() {
         const fetchedHorses: Horse[] = [];
         querySnapshot.forEach((doc) => {
           const horseData = doc.data() as Horse;
-          fetchedHorses.push({ ...horseData, id: doc.id }); // Include horse id
+          fetchedHorses.push({ ...horseData, id: doc.id });
         });
 
         setHorses(fetchedHorses);
@@ -113,13 +105,13 @@ export default function ViewAllHorsesScreen() {
   );
 
   const handleEditHorse = (horse: Horse) => {
-    setSelectedHorse(horse); // Set the selected horse data
-    setModalVisible(true); // Open the modal
+    setSelectedHorse(horse);
+    setModalVisible(true);
   };
 
   const handleModalClose = () => {
     setModalVisible(false);
-    setSelectedHorse(null); // Clear selected horse after closing the modal
+    setSelectedHorse(null);
   };
 
   if (loading) {
@@ -136,44 +128,58 @@ export default function ViewAllHorsesScreen() {
         <View style={styles.horseContainer}>
           {horses.map((horse, index) => (
             <View key={index} style={styles.horseCard}>
-              <Text style={styles.horseTitle}>{horse.name || "No Name"}</Text>
-              <Text style={styles.horseInfo}>
-                Alder: {horse.age || "Unknown"}
-              </Text>
-              <Text style={styles.horseInfo}>
-                Race: {horse.breed || "Unknown"}
-              </Text>
-
-              {/* Display feedings if available */}
-              {horse.feedings && horse.feedings.length > 0 ? (
-                <View style={styles.horseInfo}>
-                  {horse.feedings.map((feeding, feedIndex) => (
-                    <View key={feedIndex} style={styles.feedRow}>
-                      <Text style={styles.foodText}>
-                        Foder: {feeding.food || "Ingen data"}
-                      </Text>
-                      <Text style={styles.quantityText}>
-                        Mængde: {feeding.quantity} kg
-                      </Text>
-                    </View>
-                  ))}
+              <View style={styles.header}>
+                <View style={styles.headerTextBox}>
+                  <Text style={styles.title}>{horse.name || "No Name"}</Text>
+                  <Text style={styles.detailText}>
+                    Race: {horse.breed || "Unknown"}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    Alder: {horse.age || "Unknown"}
+                  </Text>
                 </View>
-              ) : (
-                <Text style={styles.noFeedingText}>
-                  Ingen foder oplysninger
-                </Text>
-              )}
 
-              {stable?.isAdmin && (
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => handleEditHorse(horse)} // Trigger modal with horse data
-                  >
-                    <Text style={styles.buttonText}>Opdater oplysninger</Text>
-                  </TouchableOpacity>
+                {/* Placeholder for image */}
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.imageText}>+Add image</Text>
                 </View>
-              )}
+              </View>
+
+              {/* Divider */}
+              <View style={styles.divider} />
+
+              {/* Feeding details and button layout */}
+              <View style={styles.feedButtonContainer}>
+                <View style={styles.feedContainer}>
+                  {horse.feedings && horse.feedings.length > 0 ? (
+                    horse.feedings.map((feeding, feedIndex) => (
+                      <View key={feedIndex} style={styles.feedRow}>
+                        <Text style={styles.foodText}>
+                          {feeding.food || "Ingen data"}
+                        </Text>
+                        <Text style={styles.quantityText}>
+                          {feeding.quantity}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.noFeedingText}>
+                      Ingen foder oplysninger
+                    </Text>
+                  )}
+                </View>
+
+                {stable?.isAdmin && (
+                  <View style={styles.buttonWrapper}>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => handleEditHorse(horse)}
+                    >
+                      <Text style={styles.buttonText}>Opdater</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
             </View>
           ))}
         </View>
@@ -181,15 +187,11 @@ export default function ViewAllHorsesScreen() {
         <Text style={styles.noHorseText}>Der er ingen heste i stalden.</Text>
       )}
 
-      {/* Modal for editing horse details */}
       <AddHorseModal
         visible={isModalVisible}
         onClose={handleModalClose}
-        onSubmit={() => {
-          handleModalClose();
-          // Fetch the updated horses here if necessary
-        }}
-        horseData={selectedHorse} // Pass the selected horse to the modal
+        onSubmit={handleModalClose}
+        horseData={selectedHorse}
       />
     </ScrollView>
   );
@@ -202,53 +204,102 @@ const styles = StyleSheet.create({
     paddingRight: 30,
     backgroundColor: "#fcf7f2",
   },
-  horseCard: {
+
+  horseContainer: {
     backgroundColor: "#fcf7f2",
+  },
+
+  horseCard: {
+    backgroundColor: "#FCF7F2",
+    borderWidth: 0.5,
+    borderColor: "lightgrey",
+    borderRadius: 10,
     padding: 15,
     marginBottom: 20,
-    borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     elevation: 3,
     shadowRadius: 5,
   },
-  horseTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
-    color: "#000",
+    backgroundColor: "#fcf7f2",
   },
-  horseInfo: {
-    fontSize: 16,
+  headerTextBox: {
+    flexDirection: "column",
+    backgroundColor: "#fcf7f2",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
     marginBottom: 5,
-    color: "#000",
-    backgroundColor: "#fcf7f2", // Ensure this is the background color
+    backgroundColor: "#fcf7f2",
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#000000",
+    backgroundColor: "#fcf7f2",
+  },
+  imagePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: "#E0E0E0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  imageText: {
+    color: "#777",
+    fontSize: 12,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#B0ADA9",
+    marginVertical: 10,
+  },
+  feedButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    backgroundColor: "#fcf7f2",
+  },
+  feedContainer: {
+    flex: 2,
+    paddingRight: 10,
+    backgroundColor: "#fcf7f2",
   },
   feedRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
-    backgroundColor: "#fcf7f2", // Add background color to the feed rows as well
+    alignItems: "flex-start",
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#B0ADA9",
+    backgroundColor: "#fcf7f2",
   },
   foodText: {
     fontSize: 16,
-    flex: 1,
-    color: "#000",
+    flex: 4,
+    marginRight: 5,
   },
   quantityText: {
     fontSize: 16,
-    color: "#000",
+    flex: 1,
+    textAlign: "right",
   },
-  buttonContainer: {
+  buttonWrapper: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#fcf7f2",
   },
   button: {
-    marginTop: 10,
-    width: 200,
-    padding: 5,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "#000000",
     backgroundColor: "#ffffff",
@@ -260,11 +311,7 @@ const styles = StyleSheet.create({
   },
   noFeedingText: {
     fontSize: 16,
-    marginTop: 5,
     color: "#000",
-  },
-  horseContainer: {
-    backgroundColor: "#fcf7f2",
   },
   noHorseText: {
     fontSize: 16,
