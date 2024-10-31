@@ -120,7 +120,7 @@ export default function TabOneScreen() {
           : [currentUserId];
         await updateDoc(stableDocRef, {
           members: updatedMembers,
-          numOfMembers: updatedMembers.length - 1,
+          numOfMembers: updatedMembers.length,
         });
       }
 
@@ -291,7 +291,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
     backgroundColor: "#fcf7f2",
-
   },
   addMemberButton: {
     flex: 1, // Equal space for both buttons
