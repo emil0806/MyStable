@@ -37,7 +37,7 @@ export default function Profile() {
           email: userData.email,
           name: userData.name,
           phone: userData.phone,
-          horsesCount: 0, // Set initial placeholder, will update in fetchUserHorses
+          horsesCount: 0,
         });
       } else {
         console.log("No such document");
