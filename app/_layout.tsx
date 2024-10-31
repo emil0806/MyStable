@@ -81,7 +81,7 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={ourTheme}>
-      <Stack>
+      <Stack screenOptions={{ gestureEnabled: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="stables" options={{ headerShown: false }} />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '@react-navigation/native';
@@ -16,7 +16,7 @@ const SignIn: React.FC = () => {
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
-                router.push('/(tabs)');
+                router.replace('/(tabs)');
             })
             .catch(error => {
                 console.error(error);
@@ -24,43 +24,49 @@ const SignIn: React.FC = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.imageContainer}>
-                <Image
-                    source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
-                    style={styles.image}
-                    resizeMode='center'
-                />
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : 'height'}
+            style={styles.container}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        >
+            <View style={styles.container}>
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
+                        style={styles.image}
+                        resizeMode='center'
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Adgangskode"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                    />
+
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={handleLogin}>
+                        <Text style={styles.buttonText}>Login</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.text}>Ikke bruger endnu?</Text>
+                    <Link style={styles.create} push href="/login/createAccount">Opret konto</Link>
+                </View>
+
             </View>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
+        </KeyboardAvoidingView>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Adgangskode"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.text}>Ikke bruger endnu?</Text>
-                <Link style={styles.create} push href="/login/createAccount">Opret konto</Link>
-            </View>
-
-        </View>
     );
 };
 
