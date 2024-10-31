@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 const AddHorseModal: React.FC<{
   visible: boolean;
@@ -21,29 +22,34 @@ const AddHorseModal: React.FC<{
   const [breed, setBreed] = useState("");
   const [age, setAge] = useState("");
   const [color, setColor] = useState("");
-  const [feedings, setFeedings] = useState([{ food: "", quantity: "" }]);
+  const [feedings, setFeedings] = useState([
+    { food: "", quantity: "", measurement: "" },
+  ]);
   const [error, setError] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(null);
+
+  const measurementOptions = ["kg", "tbs", "g", "ml"];
 
   useEffect(() => {
     if (horseData) {
-      console.log("Horse data received in modal:", horseData);
       setName(horseData.name || "");
       setBreed(horseData.breed || "");
       setAge(horseData.age ? String(horseData.age) : "");
       setColor(horseData.color || "");
-      setFeedings(horseData.feedings || [{ food: "", quantity: "" }]);
+      setFeedings(
+        horseData.feedings || [{ food: "", quantity: "", measurement: "" }]
+      );
     } else {
       setName("");
       setBreed("");
       setAge("");
       setColor("");
-      setFeedings([{ food: "", quantity: "" }]);
+      setFeedings([{ food: "", quantity: "", measurement: "" }]);
     }
   }, [horseData]);
 
   const handleSaveHorse = async () => {
-    console.log("Save button clicked");
-
     if (!auth.currentUser?.uid) {
       console.log("No user is authenticated");
       return;
@@ -51,7 +57,6 @@ const AddHorseModal: React.FC<{
 
     if (!name || !breed || !age || !color) {
       setError("All fields are required");
-      console.log("Validation failed");
       return;
     }
 
@@ -68,24 +73,20 @@ const AddHorseModal: React.FC<{
       if (horseData) {
         const horseRef = doc(db, "horses", horseData.id);
         await setDoc(horseRef, horseDetails);
-        console.log("Horse updated successfully");
       } else {
         const horsesCollectionRef = collection(db, "horses");
         await addDoc(horsesCollectionRef, horseDetails);
-        console.log("New horse added successfully");
       }
 
       onSubmit();
       onClose();
     } catch (e) {
       setError("Error saving horse data: " + e);
-      console.error("Error in Firestore operation:", e);
     }
   };
 
-  // Function to add a new feeding row
   const handleAddFeedingRow = () => {
-    setFeedings([...feedings, { food: "", quantity: "" }]);
+    setFeedings([...feedings, { food: "", quantity: "", measurement: "" }]);
   };
 
   const handleFeedingChange = (index: number, key: string, value: string) => {
@@ -99,7 +100,7 @@ const AddHorseModal: React.FC<{
     <Modal visible={visible} animationType="slide" transparent={true}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <View style={styles.modalContent}>
-          {/* Horse details fields */}
+          <Text style={styles.informationTitle}>🐴 Beskriv din hest</Text>
           <TextInput
             style={styles.input}
             placeholder="Hestens navn"
@@ -116,10 +117,8 @@ const AddHorseModal: React.FC<{
             style={styles.input}
             placeholder="Alder"
             value={age}
-            onChangeText={(text) => {
-              setAge(text);
-            }}
-            keyboardType="numeric" // Allows only numeric input
+            onChangeText={(text) => setAge(text)}
+            keyboardType="numeric"
           />
           <TextInput
             style={styles.input}
@@ -128,7 +127,7 @@ const AddHorseModal: React.FC<{
             onChangeText={setColor}
           />
 
-          <Text style={styles.feedTitle}>Hvad spiser din hest dagligt?</Text>
+          <Text style={styles.feedTitle}>🥕Hvad spiser din hest dagligt?</Text>
           {feedings.map((feeding, index) => (
             <View key={index} style={styles.feedingRow}>
               <TextInput
@@ -141,12 +140,25 @@ const AddHorseModal: React.FC<{
               />
               <TextInput
                 style={styles.feedInput}
-                placeholder="Vægt (fx 2 kg)"
+                placeholder="Vægt (fx 2)"
                 value={feeding.quantity}
                 onChangeText={(value) =>
                   handleFeedingChange(index, "quantity", value)
                 }
               />
+              {/* Dropdown til measurement */}
+              <TouchableOpacity
+                style={styles.dropdownButton}
+                onPress={() => {
+                  setCurrentIndex(index);
+                  setModalVisible(true);
+                }}
+              >
+                <Text style={styles.dropdownText}>
+                  {feeding.measurement || "Vælg enhed"}
+                </Text>
+                <FontAwesome name="chevron-down" size={16} color="black" />
+              </TouchableOpacity>
             </View>
           ))}
 
@@ -154,10 +166,9 @@ const AddHorseModal: React.FC<{
             style={styles.addButton}
             onPress={handleAddFeedingRow}
           >
-            <Text style={styles.addButtonText}>+ Tilføj mulighed</Text>
+            <Text style={styles.addButtonText}>+ Tilføj mere foder</Text>
           </TouchableOpacity>
 
-          {/* Submit and Cancel buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={onClose}>
               <Text style={styles.buttonText}>Annuller</Text>
@@ -168,6 +179,34 @@ const AddHorseModal: React.FC<{
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal for Measurement Valgmuligheder */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          onPress={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            {measurementOptions.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.option}
+                onPress={() => {
+                  handleFeedingChange(currentIndex, "measurement", option);
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </Modal>
   );
 };
@@ -179,23 +218,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: "90%",
-    padding: 20,
-    backgroundColor: "#fff",
+    width: 350, // Increase the width of the modal
+    backgroundColor: "#FCF7F2",
     borderRadius: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginVertical: 10,
+    padding: 15, // Add padding for better spacing
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   input: {
     borderWidth: 1,
@@ -205,7 +240,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
   },
-  feedContainer: {
+  feedTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: "bold", // Gør teksten fed
+    paddingTop: 15,
+    paddingBottom: 5,
+  },
+  informationTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: "bold", // Gør teksten fed
+    paddingBottom: 5,
+  },
+  feedingRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
@@ -215,14 +263,30 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
-    width: "48%", // Makes sure both fields fit in the same row
+    width: "30%",
+    marginHorizontal: "2%", // Tilføjer plads mellem boksene
+  },
+  dropdownButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    width: "30%",
+    marginHorizontal: "1.5%", // Tilføjer plads mellem boksene
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: "#333",
   },
   addButton: {
     marginTop: 10,
     alignSelf: "center",
   },
   addButtonText: {
-    color: "#007bff",
+    color: "#000000",
     fontSize: 16,
   },
   buttonContainer: {
@@ -231,23 +295,32 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    marginHorizontal: 5, // Tilføjer mellemrum mellem knapperne
   },
   buttonText: {
-    color: "#fff",
+    color: "#000000",
     fontWeight: "bold",
   },
-  feedTitle: {
-    fontSize: 18,
-    marginBottom: 10,
-    alignSelf: "flex-start",
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  feedingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+  option: {
+    paddingVertical: 12, // Increase padding for better tap area
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    width: "100%", // Ensure full width for options
+    alignItems: "center",
+  },
+  optionText: {
+    fontSize: 16, // Larger font for readability
+    color: "#333",
   },
 });
