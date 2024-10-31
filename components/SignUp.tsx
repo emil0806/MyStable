@@ -181,13 +181,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   inputContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   imageContainer: {
     margin: 0,
     justifyContent: 'center',
     height: 250,
-  }
+  },
 });
 
 export default SignUp;

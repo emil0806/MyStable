@@ -42,26 +42,42 @@ const HorseCard: React.FC<HorseCardProps> = ({
   return (
     <View style={[styles.card, style]}>
       <View style={styles.header}>
-        <View style={styles.textContainer}>
+        <View style={styles.headerTextBox}>
           <Text style={styles.title}>{name}</Text>
-          <Text>{breed}</Text>
-          <Text>{age}</Text>
-          <Text>{color}</Text>
+
+          {/* Horse details */}
+          <Text style={styles.detailText}>{breed}</Text>
+          <Text style={styles.detailText}>{age}</Text>
+          <Text style={styles.detailText}>{color}</Text>
+        </View>
+
+        {/* Placeholder for image */}
+        <View style={styles.imagePlaceholder}>
+          <Text style={styles.imageText}>+Add image</Text>
         </View>
       </View>
-      {/* Feeding details */}
-      <View style={styles.feed}>
-        {feedings.map((feeding, index) => (
-          <View key={index} style={styles.feedRow}>
-            <Text style={styles.foodText}>{feeding.food}</Text>
-            <Text style={styles.quantityText}>{feeding.quantity} kg</Text>
-          </View>
-        ))}
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleEdit}>
-          <Text style={styles.buttonText}>Opdater oplysninger</Text>
-        </TouchableOpacity>
+
+      {/* Divider */}
+      <View style={styles.divider} />
+
+      {/* Feeding and Button container */}
+      <View style={styles.feedButtonContainer}>
+        {/* Feeding details */}
+        <View style={styles.feedContainer}>
+          {feedings.map((feeding, index) => (
+            <View key={index} style={styles.feedRow}>
+              <Text style={styles.foodText}>{feeding.food}</Text>
+              <Text style={styles.quantityText}>{feeding.quantity} kg</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Update button */}
+        <View style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.button} onPress={handleEdit}>
+            <Text style={styles.buttonText}>Opdater</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -71,64 +87,95 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FCF7F2",
     borderRadius: 10,
-    padding: 10,
-    marginLeft: 30,
-    marginRight: 30,
-    marginBottom: 20,
-    elevation: 3,
+    padding: 15,
+    marginVertical: 10,
+    alignSelf: "center",
+    width: 330,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    alignSelf: "center",
-    width: 330,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
   },
-  textContainer: {
-    flex: 1,
+  headerTextBox: {
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 5,
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#000000",
+  },
+  imagePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: "#E0E0E0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  imageText: {
+    color: "#777",
+    fontSize: 12,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#B0ADA9",
+    marginVertical: 10,
+  },
+  feedButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  feedContainer: {
+    flex: 2, // Occupies approximately 66% of the container
+    paddingRight: 10,
   },
   feedRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 5,
+    alignItems: "flex-start",
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#B0ADA9",
   },
   foodText: {
-    flex: 1,
-    flexWrap: "wrap",
     fontSize: 16,
-    marginRight: 10,
+    flex: 4, // Occupies 80% of the row
+    marginRight: 5,
   },
   quantityText: {
     fontSize: 16,
-    flexShrink: 0,
+    flex: 1, // Occupies 20% of the row
+    textAlign: "right",
   },
-  buttonContainer: {
-    alignItems: "center",
+  buttonWrapper: {
+    flex: 1, // Occupies approximately 33% of the container
+    alignItems: "center", // Centers the button horizontally
+    justifyContent: "center",
   },
   button: {
-    marginTop: 10,
-    width: 200,
-    padding: 5,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    borderColor: "#000",
+    backgroundColor: "#FFFFFF",
   },
   buttonText: {
     color: "#000",
     fontSize: 16,
     textAlign: "center",
   },
-  feed: {},
 });
 
 export default HorseCard;
