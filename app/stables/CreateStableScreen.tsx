@@ -45,7 +45,7 @@ export default function CreateStableScreen() {
         name: stableName,
         phone: phone,
         email: email,
-        numOfMembers: 0,
+        numOfMembers: 1,
         admin: user.uid,
         members: arrayUnion(user.uid),
       });

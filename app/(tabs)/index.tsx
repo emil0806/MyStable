@@ -120,7 +120,7 @@ export default function TabOneScreen() {
           : [currentUserId];
         await updateDoc(stableDocRef, {
           members: updatedMembers,
-          numOfMembers: updatedMembers.length - 1,
+          numOfMembers: updatedMembers.length,
         });
       }
 
@@ -256,7 +256,7 @@ export default function TabOneScreen() {
         </TouchableOpacity>
 
         {invitation && (
-          <View style={styles.stableCard}>
+          <View style={styles.inviContainer}>
             <Text style={styles.stableInfo}>
               Du er blevet inviteret til at deltage i {invitation.stableName}
             </Text>
@@ -284,6 +284,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fcf7f2", // Light background for the screen
   },
+  inviContainer: {
+    flex: 1,
+    backgroundColor: "#fcf7f2",
+    gap: 10,
+  },
   buttonContainer: {
     flexDirection: "row", // Align the buttons horizontally
     justifyContent: "center", // Center the buttons horizontally
@@ -291,12 +296,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
     backgroundColor: "#fcf7f2",
-
   },
   addMemberButton: {
     flex: 1, // Equal space for both buttons
     paddingVertical: 12, // Equal padding for top and bottom
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000", // Set border color to avoid the black background look
