@@ -258,7 +258,8 @@ export default function TabOneScreen() {
         {invitation && (
           <View style={styles.inviContainer}>
             <Text style={styles.stableInfo}>
-              Du er blevet inviteret til at deltage i {invitation.stableName}
+              Du er blevet inviteret til at være medlem af:{" "}
+              {invitation.stableName}
             </Text>
             <TouchableOpacity
               style={styles.addMemberButton}

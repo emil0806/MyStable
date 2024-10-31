@@ -27,6 +27,7 @@ import { useTheme } from "@react-navigation/native";
 export default function AddMember() {
   const [email, setEmail] = useState("");
   const [stableId, setStableId] = useState<string | null>(null); // Holder staldens ID
+  const [stableName, setStableName] = useState<string | null>(null);
   const router = useRouter();
   const { colors } = useTheme();
 
@@ -64,6 +65,35 @@ export default function AddMember() {
 
     fetchUserStableId();
   }, []);
+
+  useEffect(() => {
+    const fetchUserStableName = async () => {
+      try {
+        const db = getFirestore();
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) {
+          Alert.alert("Fejl", "Brugeren er ikke logget ind.");
+          return;
+        }
+        const stablesRef = collection(db, "stables");
+        const q = query(stablesRef, where("admin", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const stableDoc = querySnapshot.docs[0];
+          const stableData = stableDoc.data();
+          const fetchedStableName = stableData?.name;
+          setStableName(fetchedStableName);
+        }
+      } catch (error) {
+        console.error("Fejl ved hentning af stableName: ", error);
+        Alert.alert("Fejl", "Der skete en fejl ved hentning af stableNavn.");
+      }
+    };
+    fetchUserStableName();
+  }, [stableId]);
 
   interface UserData {
     stableId?: String;
@@ -113,6 +143,7 @@ export default function AddMember() {
         stableId,
         status: "pending",
         Timestamp: new Date(),
+        stableName,
       });
       console.log("Invitation sendt!");
     } catch (error) {
