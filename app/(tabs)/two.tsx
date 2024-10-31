@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
   },
   deleteButton: {
     alignItems: "center",
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
     color: "red",
   },
   modalContainer: {
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
   },
   text: {
     fontSize: 16,
@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   signUpButton: {
     paddingHorizontal: 6,
     paddingVertical: 3,
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
     color: "#000000",
     borderRadius: 10,
     borderWidth: 1,
@@ -712,7 +712,7 @@ const styles = StyleSheet.create({
   resignButton: {
     paddingHorizontal: 6,
     paddingVertical: 3,
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
     color: "#000000",
     borderRadius: 10,
     borderWidth: 1,

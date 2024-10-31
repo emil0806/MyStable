@@ -22,12 +22,17 @@ import AddHorseModal from "@/components/AddHorseModal"; // Import the modal
 import HorseCard from "@/components/HorseCard";
 
 type Horse = {
-  id: string; // Add an id field for horses
+  id: string;
   name: string;
   age: number;
   breed: string;
+  feedings: Feeding[];
   ownerId: string;
 };
+type Feeding = {
+  food: string,
+  quantity: string
+}
 
 export default function ViewAllHorsesScreen() {
   const [stable, setStable] = useState<any | null>(null);
@@ -246,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#fcf7f2",
+    backgroundColor: "#ffffff",
   },
   buttonText: {
     color: "#000",

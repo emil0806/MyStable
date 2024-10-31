@@ -122,7 +122,7 @@ const SignUp: React.FC = () => {
           />
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={styles.button}
             onPress={handleSignUp}
           >
             <Text style={styles.buttonText}>Opret konto</Text>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 30,
-    backgroundColor: "#FCF7F2",
+    backgroundColor: "#ffffff",
     textAlign: "center",
     padding: 10,
     borderRadius: 10,
