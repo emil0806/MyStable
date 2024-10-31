@@ -72,7 +72,27 @@ function StableLayoutNav() {
         />
         <Stack.Screen
           name="ViewAllStables"
-          options={{ headerShown: false, title: "", headerTitle: "" }}
+          options={{
+            headerShown: true,
+            headerStyle: {
+              backgroundColor: "#fcf7f2",
+            },
+            headerTitle: "",
+            headerLeft: () => (
+              <Link href="/(tabs)" asChild>
+                <Pressable
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="arrow-left"
+                    size={14}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={styles.text}>Stald</Text>
+                </Pressable>
+              </Link>
+            ),
+          }}
         />
         <Stack.Screen
           name="AddMember"
