@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
 // Component for the Add Horse Button
 const AddHorseButton: React.FC<{ onPress: () => void }> = ({ onPress }) => {
@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 15,
+    paddingHorizontal: 5,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
-    color: '#000000',
+    color: "#000000",
     fontSize: 16,
     textAlign: "center",
     fontWeight: "bold",
