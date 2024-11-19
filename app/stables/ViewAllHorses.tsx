@@ -29,9 +29,9 @@ type Horse = {
   ownerId: string;
 };
 type Feeding = {
-  food: string,
-  quantity: string
-}
+  food: string;
+  quantity: string;
+};
 
 export default function ViewAllHorsesScreen() {
   const [stable, setStable] = useState<any | null>(null);
@@ -237,6 +237,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
     backgroundColor: "#fcf7f2",
+    color: "#000000",
   },
   detailText: {
     fontSize: 16,
@@ -284,11 +285,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flex: 4,
     marginRight: 5,
+    color: "#000000",
   },
   quantityText: {
     fontSize: 16,
     flex: 1,
     textAlign: "right",
+    color: "#000000",
   },
   buttonWrapper: {
     flex: 1,
