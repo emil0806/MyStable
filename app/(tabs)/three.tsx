@@ -19,15 +19,14 @@ export default function Profile() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [currentHorseData, setCurrentHorseData] = useState<any>(null); // Track horse being edited
+  const [currentHorseData, setCurrentHorseData] = useState<any>(null);
 
-  //fetch user profile
+  // Fetch user profile and their information
   const fetchUserProfile = async () => {
     try {
       const userId = auth.currentUser?.uid;
       if (!userId) return;
 
-      // Fetch the user profile document
       const userDoc = doc(db, "users", userId);
       const userSnapshot = await getDoc(userDoc);
 
@@ -48,7 +47,7 @@ export default function Profile() {
     }
   };
 
-  //fetch user horses
+  // Fetch all horses owned by the user
   const fetchUserHorses = async () => {
     try {
       const userId = auth.currentUser?.uid;
@@ -68,32 +67,37 @@ export default function Profile() {
       setHorses(userHorses);
       setUserProfile((prevProfile: any) => ({
         ...prevProfile,
-        horsesCount: userHorses.length, // Update with the actual count
+        horsesCount: userHorses.length,
       }));
     } catch (e) {
       setError("Failed to fetch horses");
     }
   };
 
+  // Setting horse data when wanting to edit and displaying modal
   const handleEditHorse = (horseData: any) => {
     setCurrentHorseData(horseData);
     setModalVisible(true);
   };
 
+  // Showing modal and being ready for horse data
   const handleAddHorse = () => {
-    setCurrentHorseData(null); // Clear form for new horse
+    setCurrentHorseData(null);
     setModalVisible(true);
   };
 
+  // Closing modal
   const handleModalClose = () => {
     setModalVisible(false);
   };
 
+  // Fetching horses after submitting a new horse
   const handleSubmit = () => {
     fetchUserHorses();
     setModalVisible(false);
   };
 
+  // Fetching user info and horses
   useEffect(() => {
     fetchUserProfile();
     fetchUserHorses();
@@ -117,9 +121,11 @@ export default function Profile() {
         </TouchableOpacity>
       </View>
       <View style={styles.listContainer}>
+        {/* Display horses if any otherwise show text of no horses */}
         {horses.length > 0 ? (
           <View style={styles.horseContainer}>
             {horses.map((horse) => (
+              // Mapping over all horses and displaying horseCard for each
               <HorseCard
                 key={horse.id}
                 id={horse.id}
@@ -128,20 +134,21 @@ export default function Profile() {
                 age={horse.age}
                 color={horse.color}
                 feedings={horse.feedings}
-                onEdit={() => handleEditHorse(horse)} // Pass editing function
+                onEdit={() => handleEditHorse(horse)}
               />
             ))}
           </View>
         ) : (
+          // If no horses already
           <Text style={styles.noHorseText}>Der er ingen heste i stalden.</Text>
         )}
       </View>
-
+      {/* Modal for adding a horse */}
       <AddHorseModal
         visible={isModalVisible}
         onClose={handleModalClose}
         onSubmit={handleSubmit}
-        horseData={currentHorseData} // Pass data for pre-filling in edit mode
+        horseData={currentHorseData}
       />
     </ScrollView>
   );
@@ -180,11 +187,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   buttonContainer: {
-    flexDirection: "row", // Align the buttons horizontally
-    justifyContent: "center", // Center the buttons horizontally
-    alignItems: "center", // Align the buttons vertically
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 10,
-    paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
+    paddingHorizontal: 10,
     backgroundColor: "#fcf7f2",
   },
   noHorseText: {

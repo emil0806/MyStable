@@ -15,7 +15,7 @@ import { auth, db } from "../firebaseConfig";
 import { useTheme } from "@react-navigation/native";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { useRouter } from "expo-router";
-
+// Creating signUp component
 const SignUp: React.FC = () => {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -27,8 +27,7 @@ const SignUp: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [stableId, setStableId] = useState("");
 
-  const { colors } = useTheme();
-
+  // User able to sign up using Firebase for authentication
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
       setError("Adgangskode er ikke korrekt.");
@@ -46,7 +45,7 @@ const SignUp: React.FC = () => {
       setSuccess("Succes. Din konto er oprettet.");
       setError(null);
       try {
-        // Add a new document with a generated ID
+        // Add a new user to Firebase
         await setDoc(doc(db, "users", user.uid), {
           name: name,
           phone: phone,
@@ -72,7 +71,7 @@ const SignUp: React.FC = () => {
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../assets/images/minStaldLogo.png")} // Replace with your image path
+            source={require("../assets/images/minStaldLogo.png")}
             resizeMode="center"
           />
         </View>

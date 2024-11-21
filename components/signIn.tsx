@@ -4,15 +4,13 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../firebaseConfig';
 import { useTheme } from '@react-navigation/native';
 import { useRouter, Link } from 'expo-router';
-
+// Creating a signIn component
 const SignIn: React.FC = () => {
     const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const { colors } = useTheme();
-
+    // User able to login using Firebase, and redirecting to home screen
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
@@ -31,7 +29,7 @@ const SignIn: React.FC = () => {
             <View style={styles.container}>
                 <View style={styles.imageContainer}>
                     <Image
-                        source={require('../assets/images/minStaldLogo.png')} // Replace with your image path
+                        source={require('../assets/images/minStaldLogo.png')}
                         style={styles.image}
                         resizeMode='center'
                     />

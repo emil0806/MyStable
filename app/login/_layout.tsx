@@ -4,6 +4,7 @@ import { Link, Stack } from 'expo-router';
 import React from 'react';
 import { Pressable } from 'react-native';
 
+// Navigation used when logging in
 export default function LoginLayout() {
     return (
         <Stack screenOptions={{ gestureEnabled: false }}>

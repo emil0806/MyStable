@@ -3,16 +3,19 @@ import { ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { Text, View } from "@/components/Themed";
 
+// Stable information
 type Stable = {
   name: string;
   phone: string;
   email: string;
 };
 
+// Displaying all stables and relevant info
 export default function ViewAllStablesScreen() {
   const [stables, setStables] = useState<Stable[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch all stables from Firebase
   useEffect(() => {
     const fetchStables = async () => {
       const db = getFirestore();
@@ -84,12 +87,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#000", // Sikre tekstfarven er synlig
+    color: "#000",
   },
   stableInfo: {
     fontSize: 16,
     marginBottom: 5,
-    color: "#000", // Sikre tekstfarven er synlig
+    color: "#000",
   },
   noStableText: {
     fontSize: 18,

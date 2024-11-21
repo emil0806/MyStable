@@ -25,7 +25,7 @@ import {
 import { auth, db } from "@/firebaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
 
-// Opsætning af lokaliserede ugedage og måneder til dansk
+// Setup month names
 LocaleConfig.locales["da"] = {
   monthNames: [
     "Januar",
@@ -41,6 +41,7 @@ LocaleConfig.locales["da"] = {
     "November",
     "December",
   ],
+  // Short month names for visiblity
   monthNamesShort: [
     "Jan",
     "Feb",
@@ -55,6 +56,7 @@ LocaleConfig.locales["da"] = {
     "Nov",
     "Dec",
   ],
+  // Setup day names
   dayNames: [
     "Søndag",
     "Mandag",
@@ -64,11 +66,20 @@ LocaleConfig.locales["da"] = {
     "Fredag",
     "Lørdag",
   ],
-  dayNamesShort: ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"],
+  // Short day names for visibility
+  dayNamesShort: [
+    "Søn",
+    "Man",
+    "Tir",
+    "Ons",
+    "Tor",
+    "Fre",
+    "Lør"],
   today: "I dag",
 };
 LocaleConfig.defaultLocale = "da";
 
+// Interface with relevant info about Event
 interface Event {
   id: string;
   date: string;
@@ -104,18 +115,19 @@ export default function CalendarScreen() {
     }
   }, [stable]);
 
+  // To make sure users stable is fetched when screen comes to view
   useFocusEffect(
     React.useCallback(() => {
       fetchUserStable();
     }, [])
   );
 
+  // Fetching user stable 
   const fetchUserStable = async () => {
     const db = getFirestore();
     const user = auth.currentUser;
 
     if (user) {
-      // Hent brugerens dokument
       const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
 
@@ -130,10 +142,11 @@ export default function CalendarScreen() {
           if (stableSnapshot.exists()) {
             const stableData = stableSnapshot.data();
 
-            // Tjek, om brugeren er admin eller medlem
+            // Check if user is admin or member
             const admin = stableData?.admin === user.uid;
             const member = stableData?.members?.includes(user.uid);
 
+            // Setting info about users stable
             setStable({
               ...stableData,
               isAdmin: admin,
@@ -148,6 +161,7 @@ export default function CalendarScreen() {
     }
   };
 
+  // Fetching events if user is member of a stable
   const fetchEvents = async () => {
     if (stable?.isMember && stable?.stableId) {
       try {
@@ -164,10 +178,12 @@ export default function CalendarScreen() {
     }
   };
 
+  // Set selected day when pressing a date
   const onDayPress = (day: DateData) => {
     setSelectedDate(day.dateString);
   };
 
+  // Allowing admin to see modal when pressing adding button
   const onCalendarButtonPress = () => {
     if (!selectedDate) {
       Alert.alert("Ingen dato valgt", "Vælg venligst en dato på kalenderen.");
@@ -181,6 +197,7 @@ export default function CalendarScreen() {
     setEditingEventId(null);
   };
 
+  // Create new event and store in Firebase
   const handleSaveEvent = async () => {
     if (!eventTitle) {
       Alert.alert(
@@ -190,6 +207,7 @@ export default function CalendarScreen() {
       return;
     }
 
+    // Info about new event
     const newEvent = {
       date: selectedDate,
       title: eventTitle,
@@ -202,7 +220,6 @@ export default function CalendarScreen() {
 
     try {
       if (editingEventId) {
-        // You can add logic for updating an event if required
       } else {
         // Add new event to Firebase
         await addDoc(collection(db, "events"), newEvent);
@@ -223,7 +240,7 @@ export default function CalendarScreen() {
       Alert.alert("Fejl", "Kunne ikke gemme begivenhed. Prøv igen.");
     }
   };
-
+  // Editing event by updating fields
   const handleEditEvent = (event: Event) => {
     setEventTitle(event.title);
     setEventDescription(event.description);
@@ -233,7 +250,7 @@ export default function CalendarScreen() {
     setEventUser("");
     setModalVisible(true);
   };
-
+  // Delete events 
   const handleDeleteEvent = (id: string) => {
     Alert.alert(
       "Slet begivenhed",
@@ -251,7 +268,7 @@ export default function CalendarScreen() {
       ]
     );
   };
-
+  // Signing up user for event when clicking on button
   const handleSignUp = async (eventId: string) => {
     try {
       const user = auth.currentUser;
@@ -292,7 +309,7 @@ export default function CalendarScreen() {
       console.error("Error signing up for event: ", error);
     }
   };
-
+  // Removes user from event
   const handleResign = async (eventId: string) => {
     try {
       const eventRef = doc(db, "events", eventId);
@@ -308,13 +325,13 @@ export default function CalendarScreen() {
       console.error("Error resigning from event: ", error);
     }
   };
-
+  // Admin can see modal for adding in and out for multiple days
   const handleAddInAndOutEvents = async () => {
     setAddEventsModalVisible(true);
     setInTime("");
     setOutTime("");
   }
-
+  // Adding in and out for next 14 days and storing in Firebase
   const handleAddInOutEvents = async () => {
     const today = new Date();
 
@@ -356,7 +373,7 @@ export default function CalendarScreen() {
     fetchEvents();
   };
 
-
+  // Retrieving events for a specific day
   const getEventsForDate = (date: string): Event[] => {
     return events
       .filter((event) => event.date === date)
@@ -367,10 +384,10 @@ export default function CalendarScreen() {
       });
   };
 
+  // Displaying mark on dates with events
   const getMarkedDates = () => {
     const markedDates: { [key: string]: any } = {};
 
-    // Mark dates with user-added events only
     events.forEach((event) => {
       if (!event.id.startsWith("default-")) {
         if (markedDates[event.date]) {
@@ -410,12 +427,12 @@ export default function CalendarScreen() {
     return markedDates;
   };
 
-  // Funktion til at formatere dato til dd-mm-yyyy
+  // Formating date to dd-mm-yyyy
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 fordi måneder er 0-indekserede
-    const year = String(date.getFullYear()); // Henter hele året (fire cifre)
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear());
     return `${day}-${month}-${year}`;
   };
 
@@ -426,7 +443,7 @@ export default function CalendarScreen() {
           onDayPress={onDayPress}
           markedDates={getMarkedDates()}
           markingType={"multi-dot"}
-          firstDay={1} // Starter ugen med mandag
+          firstDay={1}
           theme={{
             arrowColor: "#6E8E8A",
             monthTextColor: "#6E8E8A",
@@ -440,6 +457,7 @@ export default function CalendarScreen() {
           }}
         />
       </View>
+      {/* Only show buttons if user is admin */}
       {stable?.isMember
         ? stable?.isAdmin && (
           <View style={styles.buttonContainer}>
@@ -505,9 +523,6 @@ export default function CalendarScreen() {
                           </TouchableOpacity>
                         )}
                       </View>
-
-
-
                     </View>
                   </View>
                 )}

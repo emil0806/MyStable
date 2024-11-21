@@ -29,6 +29,7 @@ export default function CreateStableScreen() {
   const router = useRouter();
   const { colors } = useTheme();
 
+  // Creating a new stable and storing in Firebase
   const createStable = async () => {
     try {
       const db = getFirestore();
@@ -40,7 +41,6 @@ export default function CreateStableScreen() {
         return;
       }
 
-      // Tilføj stald til databasen
       const stableRef = await addDoc(collection(db, "stables"), {
         name: stableName,
         phone: phone,
@@ -50,18 +50,16 @@ export default function CreateStableScreen() {
         members: arrayUnion(user.uid),
       });
 
-      const stableId = stableRef.id; // Get the ID of the new stable
+      const stableId = stableRef.id;
 
-      // Step 2: Update the user's document with the stableId
-      const userRef = doc(db, "users", user.uid); // Assuming user data is stored in a 'users' collection
+      const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, {
-        stableId: stableId, // Set the stableId to the user's document
+        stableId: stableId,
       });
 
       Alert.alert("Succes", "Stald oprettet succesfuldt!");
 
-      // Naviger til skærmen der viser stalden
-      router.push("/(tabs)/"); // Navigerer tilbage til oversigtssiden
+      router.push("/(tabs)");
     } catch (error) {
       console.error("Fejl ved oprettelse af stald: ", error);
       Alert.alert("Fejl", "Der skete en fejl under oprettelsen af stalden.");
@@ -106,7 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fcf7f2", // Match baggrundsfarven fra login-siden
+    backgroundColor: "#fcf7f2",
   },
   title: {
     fontSize: 36,
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 10,
     borderRadius: 5,
-    backgroundColor: "#FFFFFF", // Baggrundsfarve for inputfelter
+    backgroundColor: "#FFFFFF",
   },
   button: {
     marginTop: 30,

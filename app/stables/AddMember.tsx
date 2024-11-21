@@ -26,13 +26,13 @@ import { useTheme } from "@react-navigation/native";
 
 export default function AddMember() {
   const [email, setEmail] = useState("");
-  const [stableId, setStableId] = useState<string | null>(null); // Holder staldens ID
+  const [stableId, setStableId] = useState<string | null>(null);
   const [stableName, setStableName] = useState<string | null>(null);
   const router = useRouter();
   const { colors } = useTheme();
 
   useEffect(() => {
-    // Hent stald ID baseret på den nuværende bruger
+    // Fetch a users stable id
     const fetchUserStableId = async () => {
       try {
         const db = getFirestore();
@@ -44,7 +44,6 @@ export default function AddMember() {
           return;
         }
 
-        // Søg i stables, hvor admin matcher user.uid
         const stablesRef = collection(db, "stables");
         const q = query(stablesRef, where("admin", "==", user.uid));
         const querySnapshot = await getDocs(q);
@@ -54,7 +53,6 @@ export default function AddMember() {
           return;
         }
 
-        // Hent stald ID (vi tager det første resultat, hvis flere findes)
         const stableDoc = querySnapshot.docs[0];
         setStableId(stableDoc.id);
       } catch (error) {
@@ -67,6 +65,7 @@ export default function AddMember() {
   }, []);
 
   useEffect(() => {
+    // Fetch stable name where user is in
     const fetchUserStableName = async () => {
       try {
         const db = getFirestore();
@@ -99,6 +98,7 @@ export default function AddMember() {
     stableId?: String;
   }
 
+  // Adding member by sending invitation
   const addMember = async () => {
     if (!stableId) {
       Alert.alert("Fejl", "Stald ID kunne ikke findes.");
@@ -116,7 +116,6 @@ export default function AddMember() {
         return;
       }
 
-      // Hent brugerens UID
       const memberDoc = querySnapshot.docs[0];
       const memberData = memberDoc.data() as UserData;
       const memberId = memberDoc.id;
@@ -128,13 +127,14 @@ export default function AddMember() {
       await addInvitation(memberId, stableId);
 
       Alert.alert("Succes", "Invitation sendt!");
-      router.push("/(tabs)/"); // Navigerer tilbage til oversigtssiden
+      router.push("/(tabs)");
     } catch (error) {
       console.error("Fejl ved tilføjelse af medlem: ", error);
       Alert.alert("Fejl", "Der skete en fejl under tilføjelsen af medlemmet.");
     }
   };
 
+  // Adding invitation to Firebase
   const addInvitation = async (invitedUserId: String, stableId: String) => {
     try {
       const db = getFirestore();
@@ -145,7 +145,6 @@ export default function AddMember() {
         Timestamp: new Date(),
         stableName,
       });
-      console.log("Invitation sendt!");
     } catch (error) {
       console.error("Fejl med at sende invitation! ", error);
     }

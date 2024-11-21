@@ -5,7 +5,7 @@ import { Text, View } from '@/components/Themed';
 
 import { useTheme } from '@react-navigation/native';
 
-
+// Screen for login
 export default function Login() {
 
     const { colors } = useTheme();

@@ -32,17 +32,19 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(true);
   const [isUserReady, setIsUserReady] = useState(false);
   const [invitation, setInvitation] = useState<any | null>(null);
-  const [isModalVisible, setModalVisible] = useState(false); // State to manage modal visibility
+  const [isModalVisible, setModalVisible] = useState(false);
   const { colors } = useTheme();
   const router = useRouter();
   const segments = useSegments();
 
+  // Callback on fetching user invitations when screen is in view
   useFocusEffect(
     React.useCallback(() => {
       fetchUserInvitation();
     }, [])
   );
 
+  // Fetches user stable from Firebase
   const fetchUserStable = async () => {
     setLoading(true);
     const db = getFirestore();
@@ -77,6 +79,7 @@ export default function TabOneScreen() {
     setLoading(false);
   };
 
+  // Fetching user invitiatins from Firebase 
   const fetchUserInvitation = async () => {
     const db = getFirestore();
     const user = auth.currentUser;
@@ -96,6 +99,7 @@ export default function TabOneScreen() {
     }
   };
 
+  // Updates member list when user accepts
   const handleAcceptInvitation = async () => {
     if (!invitation) {
       return;
@@ -136,6 +140,7 @@ export default function TabOneScreen() {
     }
   };
 
+  // Removes invitation when user declines
   const handleDeclineInvitation = async () => {
     if (!invitation) {
       return;
@@ -153,19 +158,22 @@ export default function TabOneScreen() {
     }
   };
 
+  // Opens modal by changing visibility
   const openModal = () => {
     setModalVisible(true);
   };
 
+  // Closes modal by chaning visibility
   const closeModal = () => {
     setModalVisible(false);
   };
 
+  // Close modal and fetch users stable when they have submitted
   const handleModalSubmit = () => {
-    closeModal(); // Close the modal after submission
-    fetchUserStable(); // Optionally refresh the stable data
+    closeModal();
+    fetchUserStable();
   };
-
+  // If user exists then fetching user stable adn setting ready
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -232,6 +240,7 @@ export default function TabOneScreen() {
         </>
       ) : (
         <View style={styles.container}>
+          {/* Button for creating a new stable */}
           <TouchableOpacity
             style={styles.createStableButton}
             onPress={() => router.push("../stables/CreateStableScreen")}
@@ -284,7 +293,7 @@ export default function TabOneScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fcf7f2", // Light background for the screen
+    backgroundColor: "#fcf7f2",
     flex: 1,
   },
   inviContainer: {
@@ -293,41 +302,41 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   buttonContainer: {
-    flexDirection: "row", // Align the buttons horizontally
-    justifyContent: "center", // Center the buttons horizontally
-    alignItems: "center", // Align the buttons vertically
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 10,
-    paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
+    paddingHorizontal: 10,
     backgroundColor: "#fcf7f2",
   },
   addMemberButton: {
-    flex: 1, // Equal space for both buttons
-    paddingVertical: 12, // Equal padding for top and bottom
+    flex: 1,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#000000", // Set border color to avoid the black background look
-    backgroundColor: "#ffffff", // White background
-    marginRight: 10, // Space between buttons
-    alignItems: "center", // Ensure text is centered horizontally
-    justifyContent: "center", // Ensure text is centered vertically
+    borderColor: "#000000",
+    backgroundColor: "#ffffff",
+    marginRight: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   addHorseButton: {
-    flex: 1, // Equal space for both buttons
+    flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#000000",
-    backgroundColor: "#ffffff", // White background
-    alignItems: "center", // Ensure text is centered horizontally
-    justifyContent: "center", // Ensure text is centered vertically
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
-    color: "#000", // Black text
+    color: "#000",
     fontWeight: "bold",
     fontSize: 16,
-    textAlign: "center", // Center text horizontally
+    textAlign: "center",
   },
   stableCard: {
     backgroundColor: "#FCF7F2",

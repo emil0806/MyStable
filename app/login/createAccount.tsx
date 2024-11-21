@@ -5,7 +5,7 @@ import { Text, View } from '@/components/Themed';
 
 import { useTheme } from '@react-navigation/native';
 
-
+// Screen for creating account
 export default function CreateAccount() {
 
     const { colors } = useTheme();

@@ -1,18 +1,19 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { useTheme } from "@react-navigation/native"; // Importer useTheme for at få adgang til temaets farver
+import { useTheme } from "@react-navigation/native";
 
+// For when user is not in a stable yet
 export default function CreateStableLink() {
   const router = useRouter();
-  const { colors } = useTheme(); // Få adgang til temaets farver
+  const { colors } = useTheme();
 
   return (
     <View style={{ padding: 20 }}>
       <Text>Du har ikke oprettet en stald endnu.</Text>
 
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]} // Brug colors.primary fra temaet
+        style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={() => router.push("/stables/CreateStableScreen")}
       >
         <Text style={styles.buttonText}>Opret stald</Text>

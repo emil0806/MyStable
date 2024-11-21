@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
-  ScrollView,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
-  FlatList,
 } from "react-native";
 import {
   getFirestore,
@@ -21,6 +18,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import AddHorseModal from "@/components/AddHorseModal";
 import HorseCard from "@/components/HorseCard";
 
+// Horse information
 type Horse = {
   id: string;
   name: string;
@@ -30,6 +28,7 @@ type Horse = {
   feedings: Feeding[];
   ownerId: string;
 };
+// Feeding information
 type Feeding = {
   food: string;
   quantity: string;
@@ -43,6 +42,7 @@ export default function ViewAllHorsesScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedHorse, setSelectedHorse] = useState<Horse | null>(null);
 
+  // To make sure horses are fetched when screen is in view
   useFocusEffect(
     React.useCallback(() => {
       const fetchHorses = async () => {
@@ -107,11 +107,13 @@ export default function ViewAllHorsesScreen() {
     }, [])
   );
 
+  // Showing modal for editing horse
   const handleEditHorse = (horse: Horse) => {
     setSelectedHorse(horse);
     setModalVisible(true);
   };
 
+  // Closing modal
   const handleModalClose = () => {
     setModalVisible(false);
     setSelectedHorse(null);
@@ -138,7 +140,7 @@ export default function ViewAllHorsesScreen() {
               age={horse.age}
               color={horse.color}
               feedings={horse.feedings}
-              onEdit={() => handleEditHorse(horse)} // Pass editing function
+              onEdit={() => handleEditHorse(horse)}
             />
           ))}
         </View>

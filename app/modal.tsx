@@ -26,6 +26,7 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "@/firebaseConfig";
 
+// Modal used for announcements
 export default function ModalScreen() {
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
@@ -37,6 +38,7 @@ export default function ModalScreen() {
     fetchAnnouncements();
   }, [stableId]);
 
+  // Fetching user stable and information
   const fetchUserStable = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -57,6 +59,7 @@ export default function ModalScreen() {
     }
   };
 
+  // Fetching announcements from Firebase
   const fetchAnnouncements = async () => {
     deleteOldAnnouncements();
     if (stableId) {
@@ -78,6 +81,7 @@ export default function ModalScreen() {
     }
   };
 
+  // adding a new announcement and storing in Firebase
   const handleAddAnnouncement = async () => {
     if (newAnnouncement.trim() === "") {
       Alert.alert("Fejl", "Indtast venligst en meddelelse.");
@@ -114,6 +118,7 @@ export default function ModalScreen() {
     }
   };
 
+  // To automatically delete announcement older than seven days
   const deleteOldAnnouncements = async () => {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -153,7 +158,7 @@ export default function ModalScreen() {
           )}
         />
 
-        {/* Admin-only input for posting new announcements */}
+        {/* Only admin can post new announcements */}
         {isAdmin && (
           <View style={styles.adminContainer}>
             <TextInput

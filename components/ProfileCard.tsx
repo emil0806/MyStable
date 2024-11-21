@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { auth, db } from "../firebaseConfig"; // Import your Firestore configuration
 
+// Defining interface for ProfileCardProps
 interface ProfileCardProps {
   email: string;
   name: string;
@@ -18,6 +19,7 @@ interface ProfileCardProps {
   horsesCount: number;
 }
 
+// Defining ProfileCard
 const ProfileCard: React.FC<ProfileCardProps> = ({
   email,
   name,
@@ -29,6 +31,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   const [editedEmail, setEditedEmail] = useState(email);
   const [editedPhone, setEditedPhone] = useState(phone);
 
+  // Saves info about user and store in Firebase
   const handleSave = async () => {
     try {
       const userId = auth.currentUser?.uid;

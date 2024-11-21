@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
+// Modal for adding horse
 const AddHorseModal: React.FC<{
   visible: boolean;
   onClose: () => void;
@@ -26,7 +27,7 @@ const AddHorseModal: React.FC<{
     { food: "", quantity: "", measurement: "" },
   ]);
   const [error, setError] = useState("");
-
+  // Resetting fields when showing
   useEffect(() => {
     if (horseData) {
       console.log("Horse: ", horseData.feedings);
@@ -45,7 +46,7 @@ const AddHorseModal: React.FC<{
       setFeedings([{ food: "", quantity: "", measurement: "" }]);
     }
   }, [horseData]);
-
+  // Save horse and information and store in Firebase
   const handleSaveHorse = async () => {
     if (!auth.currentUser?.uid) {
       console.log("No user is authenticated");
@@ -82,10 +83,12 @@ const AddHorseModal: React.FC<{
     }
   };
 
+  // Adding extra feeding row to modal
   const handleAddFeedingRow = () => {
     setFeedings([...feedings, { food: "", quantity: "", measurement: "" }]);
   };
 
+  // Chnges feeding info and updating
   const handleFeedingChange = (index: number, key: string, value: string) => {
     const updatedFeedings = feedings.map((feeding, i) =>
       i === index ? { ...feeding, [key]: value } : feeding
@@ -186,10 +189,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: 350, // Increase the width of the modal
+    width: 350,
     backgroundColor: "#FCF7F2",
     borderRadius: 10,
-    padding: 15, // Add padding for better spacing
+    padding: 15,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -208,14 +211,14 @@ const styles = StyleSheet.create({
   feedTitle: {
     fontSize: 18,
     marginBottom: 10,
-    fontWeight: "bold", // Gør teksten fed
+    fontWeight: "bold",
     paddingTop: 15,
     paddingBottom: 5,
   },
   informationTitle: {
     fontSize: 18,
     marginBottom: 10,
-    fontWeight: "bold", // Gør teksten fed
+    fontWeight: "bold",
     paddingBottom: 5,
   },
   feedingRow: {
@@ -229,7 +232,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     width: "30%",
-    marginHorizontal: "2%", // Tilføjer plads mellem boksene
+    marginHorizontal: "2%",
   },
   dropdownButton: {
     flexDirection: "row",
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     width: "30%",
-    marginHorizontal: "1.5%", // Tilføjer plads mellem boksene
+    marginHorizontal: "1.5%",
   },
   dropdownText: {
     fontSize: 14,
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginHorizontal: 5, // Tilføjer mellemrum mellem knapperne
+    marginHorizontal: 5,
   },
   buttonText: {
     color: "#000000",
@@ -278,14 +281,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   option: {
-    paddingVertical: 12, // Increase padding for better tap area
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    width: "100%", // Ensure full width for options
+    width: "100%",
     alignItems: "center",
   },
   optionText: {
-    fontSize: 16, // Larger font for readability
+    fontSize: 16,
     color: "#333",
   },
 });

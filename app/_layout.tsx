@@ -79,7 +79,7 @@ function RootLayoutNav() {
 
     return () => unsubscribe();
   }, []);
-
+  // Defining and setting uo navigation between main pages
   return (
     <NavigationContainer>
       <ThemeProvider value={ourTheme}>

@@ -11,7 +11,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/firebaseConfig";
 
-// Definer vores tema med vores egne farver
+// Defining theme with own colors
 export const ourTheme = {
   ...DefaultTheme,
   colors: {
@@ -51,7 +51,7 @@ export default function StableLayout() {
 
   return <StableLayoutNav />;
 }
-
+// Setup navigation for stable especially screens not accessed via tabs
 function StableLayoutNav() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<User | null>(null);

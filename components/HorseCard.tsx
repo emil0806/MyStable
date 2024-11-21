@@ -7,14 +7,14 @@ import {
   StyleSheet,
 } from "react-native";
 
-// Define the Feeding interface here
+// Defining feeding interface
 interface Feeding {
   food: string;
   quantity: string;
   measurement: string;
 }
 
-// Define HorseCardProps with the feedings array
+// Defining HorseCardProps
 interface HorseCardProps {
   id: string;
   name: string;
@@ -26,6 +26,7 @@ interface HorseCardProps {
   onEdit: (horseData: any) => void;
 }
 
+// Defining a horseCard
 const HorseCard: React.FC<HorseCardProps> = ({
   id,
   name,
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   feedContainer: {
-    flex: 2, // Occupies approximately 66% of the container
+    flex: 2,
     paddingRight: 10,
   },
   feedRow: {

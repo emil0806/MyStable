@@ -20,14 +20,14 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
+  // Sign user out when clicking on button
   const handleSignOut = () => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
         Alert.alert("Du er logget ud.");
-        router.replace("/login");
+        router.replace("/login"); // Sends user back to login screen
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -35,10 +35,11 @@ export default function TabLayout() {
   };
 
   return (
+    // Defines the tabs in bottom navigation bar
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#000000", // Black when active (hovered)
-        tabBarInactiveTintColor: "#405553", // Greyish color when inactive
+        tabBarActiveTintColor: "#000000",
+        tabBarInactiveTintColor: "#405553",
         headerShown: useClientOnlyValue(false, true),
         headerTitle: "",
 
@@ -52,6 +53,7 @@ export default function TabLayout() {
         },
       }}
     >
+      {/* Stable tab */}
       <Tabs.Screen
         name="index"
         options={{
@@ -59,6 +61,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="warehouse" color={color} size={30} />
           ),
+          // Icon in header for announcements  
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -88,13 +91,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Profile tab with a black icon when active and grey when inactive */}
+      {/* Profile tab */}
       <Tabs.Screen
         name="three"
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-          // Adding sign-out button in the header for the profile page
+          // Adding sign-out button in the header
           headerRight: () => (
             <TouchableOpacity style={styles.button} onPress={handleSignOut}>
               <Text style={styles.buttonText}>Log ud</Text>
