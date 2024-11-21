@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, FlatList, TouchableOpacity, Text, ScrollView } from "react-native";
 import HorseCard from "@/components/HorseCard";
 import AddHorseButton from "@/components/AddHorseButton";
 import ProfileCard from "@/components/ProfileCard";
@@ -100,7 +100,7 @@ export default function Profile() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
 
       {/* Display ProfileCard only if userProfile data is available */}
       {userProfile && (
@@ -117,22 +117,24 @@ export default function Profile() {
         </TouchableOpacity>
       </View>
       <View style={styles.listContainer}>
-        <FlatList
-          style={styles.flat}
-          data={horses}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <HorseCard
-              id={item.id}
-              name={item.name}
-              breed={item.breed}
-              age={item.age}
-              color={item.color}
-              feedings={item.feedings}
-              onEdit={handleEditHorse} // Pass editing function
-            />
-          )}
-        />
+        {horses.length > 0 ? (
+          <View style={styles.horseContainer}>
+            {horses.map((horse) => (
+              <HorseCard
+                key={horse.id}
+                id={horse.id}
+                name={horse.name}
+                breed={horse.breed}
+                age={horse.age}
+                color={horse.color}
+                feedings={horse.feedings}
+                onEdit={() => handleEditHorse(horse)} // Pass editing function
+              />
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.noHorseText}>Der er ingen heste i stalden.</Text>
+        )}
       </View>
 
       <AddHorseModal
@@ -141,27 +143,24 @@ export default function Profile() {
         onSubmit={handleSubmit}
         horseData={currentHorseData} // Pass data for pre-filling in edit mode
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     paddingTop: 10,
+    paddingLeft: 25,
+    paddingRight: 25,
     backgroundColor: "#fcf7f2",
     paddingBottom: 80,
   },
   horseCard: {
     marginBottom: 20,
   },
-  flat: {
-    width: "100%",
-    marginBottom: 150,
-  },
   listContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     marginTop: 20,
   },
   button: {
@@ -186,6 +185,14 @@ const styles = StyleSheet.create({
     alignItems: "center", // Align the buttons vertically
     marginTop: 10,
     paddingHorizontal: 10, // Add padding to ensure the buttons don't stretch fully
+    backgroundColor: "#fcf7f2",
+  },
+  noHorseText: {
+    fontSize: 16,
+    marginTop: 20,
+    color: "#000",
+  },
+  horseContainer: {
     backgroundColor: "#fcf7f2",
   },
 });

@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import {
   getFirestore,
@@ -23,14 +24,16 @@ import HorseCard from "@/components/HorseCard";
 type Horse = {
   id: string;
   name: string;
-  age: number;
+  age: string;
   breed: string;
+  color: string;
   feedings: Feeding[];
   ownerId: string;
 };
 type Feeding = {
   food: string;
   quantity: string;
+  measurement: string;
 };
 
 export default function ViewAllHorsesScreen() {
@@ -123,64 +126,20 @@ export default function ViewAllHorsesScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {horses.length > 0 ? (
         <View style={styles.horseContainer}>
-          {horses.map((horse, index) => (
-            <View key={index} style={styles.horseCard}>
-              <View style={styles.header}>
-                <View style={styles.headerTextBox}>
-                  <Text style={styles.title}>{horse.name || "No Name"}</Text>
-                  <Text style={styles.detailText}>
-                    Race: {horse.breed || "Unknown"}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    Alder: {horse.age || "Unknown"}
-                  </Text>
-                </View>
-
-                {/* Placeholder for image */}
-                <View style={styles.imagePlaceholder}>
-                  <Text style={styles.imageText}>+Add image</Text>
-                </View>
-              </View>
-
-              {/* Divider */}
-              <View style={styles.divider} />
-
-              {/* Feeding details and button layout */}
-              <View style={styles.feedButtonContainer}>
-                <View style={styles.feedContainer}>
-                  {horse.feedings && horse.feedings.length > 0 ? (
-                    horse.feedings.map((feeding, feedIndex) => (
-                      <View key={feedIndex} style={styles.feedRow}>
-                        <Text style={styles.foodText}>
-                          {feeding.food || "Ingen data"}
-                        </Text>
-                        <Text style={styles.quantityText}>
-                          {feeding.quantity}
-                        </Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noFeedingText}>
-                      Ingen foder oplysninger
-                    </Text>
-                  )}
-                </View>
-
-                {stable?.isAdmin && (
-                  <View style={styles.buttonWrapper}>
-                    <TouchableOpacity
-                      style={styles.button}
-                      onPress={() => handleEditHorse(horse)}
-                    >
-                      <Text style={styles.buttonText}>Opdater</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            </View>
+          {horses.map((horse) => (
+            <HorseCard
+              key={horse.id}
+              id={horse.id}
+              name={horse.name}
+              breed={horse.breed}
+              age={horse.age}
+              color={horse.color}
+              feedings={horse.feedings}
+              onEdit={() => handleEditHorse(horse)} // Pass editing function
+            />
           ))}
         </View>
       ) : (
@@ -193,7 +152,7 @@ export default function ViewAllHorsesScreen() {
         onSubmit={handleModalClose}
         horseData={selectedHorse}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -244,14 +203,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     backgroundColor: "#fcf7f2",
   },
-  imagePlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    backgroundColor: "#E0E0E0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   imageText: {
     color: "#777",
     fontSize: 12,
@@ -260,38 +211,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#B0ADA9",
     marginVertical: 10,
-  },
-  feedButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    backgroundColor: "#fcf7f2",
-  },
-  feedContainer: {
-    flex: 2,
-    paddingRight: 10,
-    backgroundColor: "#fcf7f2",
-  },
-  feedRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#B0ADA9",
-    backgroundColor: "#fcf7f2",
-  },
-  foodText: {
-    fontSize: 16,
-    flex: 4,
-    marginRight: 5,
-    color: "#000000",
-  },
-  quantityText: {
-    fontSize: 16,
-    flex: 1,
-    textAlign: "right",
-    color: "#000000",
   },
   buttonWrapper: {
     flex: 1,

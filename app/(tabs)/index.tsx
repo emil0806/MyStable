@@ -224,9 +224,11 @@ export default function TabOneScreen() {
               </View>
             )}
           </View>
+          <View style={styles.allHorses}>
+            {/* View All Horses */}
+            <ViewAllHorsesScreen />
 
-          {/* View All Horses */}
-          <ViewAllHorsesScreen />
+          </View>
         </>
       ) : (
         <View style={styles.container}>
@@ -282,8 +284,8 @@ export default function TabOneScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#fcf7f2", // Light background for the screen
+    flex: 1,
   },
   inviContainer: {
     flex: 1,
@@ -346,7 +348,6 @@ const styles = StyleSheet.create({
   },
   createStableButton: {
     marginTop: 10,
-    marginBottom: 50,
     width: 200,
     padding: 10,
     borderRadius: 10,
@@ -355,4 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     alignSelf: "center",
   },
+  allHorses: {
+    flex: 1
+  }
 });

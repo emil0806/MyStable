@@ -29,10 +29,9 @@ const AddHorseModal: React.FC<{
   const [modalVisible, setModalVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
 
-  const measurementOptions = ["kg", "tbs", "g", "ml"];
-
   useEffect(() => {
     if (horseData) {
+      console.log("Horse: ", horseData.feedings);
       setName(horseData.name || "");
       setBreed(horseData.breed || "");
       setAge(horseData.age ? String(horseData.age) : "");
@@ -100,7 +99,7 @@ const AddHorseModal: React.FC<{
     <Modal visible={visible} animationType="slide" transparent={true}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.informationTitle}>🐴 Beskriv din hest</Text>
+          <Text style={styles.informationTitle}>Beskriv din hest</Text>
           <TextInput
             style={styles.input}
             placeholder="Hestens navn"
@@ -127,7 +126,7 @@ const AddHorseModal: React.FC<{
             onChangeText={setColor}
           />
 
-          <Text style={styles.feedTitle}>🥕Hvad spiser din hest dagligt?</Text>
+          <Text style={styles.feedTitle}>Hvad spiser din hest dagligt?</Text>
           {feedings.map((feeding, index) => (
             <View key={index} style={styles.feedingRow}>
               <TextInput
@@ -140,25 +139,20 @@ const AddHorseModal: React.FC<{
               />
               <TextInput
                 style={styles.feedInput}
-                placeholder="Vægt (fx 2)"
+                placeholder="Mængde"
                 value={feeding.quantity}
                 onChangeText={(value) =>
                   handleFeedingChange(index, "quantity", value)
                 }
               />
-              {/* Dropdown til measurement */}
-              <TouchableOpacity
-                style={styles.dropdownButton}
-                onPress={() => {
-                  setCurrentIndex(index);
-                  setModalVisible(true);
-                }}
-              >
-                <Text style={styles.dropdownText}>
-                  {feeding.measurement || "Vælg enhed"}
-                </Text>
-                <FontAwesome name="chevron-down" size={16} color="black" />
-              </TouchableOpacity>
+              <TextInput
+                style={styles.feedInput}
+                placeholder="Enhed"
+                value={feeding.measurement}
+                onChangeText={(value) =>
+                  handleFeedingChange(index, "measurement", value)
+                }
+              />
             </View>
           ))}
 
@@ -179,34 +173,6 @@ const AddHorseModal: React.FC<{
           </View>
         </View>
       </ScrollView>
-
-      {/* Modal for Measurement Valgmuligheder */}
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContent}>
-            {measurementOptions.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={styles.option}
-                onPress={() => {
-                  handleFeedingChange(currentIndex, "measurement", option);
-                  setModalVisible(false);
-                }}
-              >
-                <Text style={styles.optionText}>{option}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </Modal>
   );
 };

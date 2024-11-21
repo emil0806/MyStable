@@ -52,9 +52,11 @@ const HorseCard: React.FC<HorseCardProps> = ({
           <Text style={styles.detailText}>{color}</Text>
         </View>
 
-        {/* Placeholder for image */}
-        <View style={styles.imagePlaceholder}>
-          <Text style={styles.imageText}>+Add image</Text>
+        {/* Update button */}
+        <View style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.button} onPress={handleEdit}>
+            <Text style={styles.buttonText}>Opdater</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -73,13 +75,6 @@ const HorseCard: React.FC<HorseCardProps> = ({
             </View>
           ))}
         </View>
-
-        {/* Update button */}
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.button} onPress={handleEdit}>
-            <Text style={styles.buttonText}>Opdater</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </View>
   );
@@ -92,9 +87,7 @@ const styles = StyleSheet.create({
     borderColor: "lightgrey",
     borderRadius: 10,
     padding: 15,
-    marginVertical: 10,
-    alignSelf: "center",
-    width: 330,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -170,8 +163,7 @@ const styles = StyleSheet.create({
   },
 
   buttonWrapper: {
-    flex: 1, // Occupies approximately 33% of the container
-    alignItems: "center", // Centers the button horizontally
+    alignItems: "center",
     justifyContent: "center",
   },
   button: {
