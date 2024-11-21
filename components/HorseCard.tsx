@@ -11,6 +11,7 @@ import {
 interface Feeding {
   food: string;
   quantity: string;
+  measurement: string;
 }
 
 // Define HorseCardProps with the feedings array
@@ -67,7 +68,8 @@ const HorseCard: React.FC<HorseCardProps> = ({
           {feedings.map((feeding, index) => (
             <View key={index} style={styles.feedRow}>
               <Text style={styles.foodText}>{feeding.food}</Text>
-              <Text style={styles.quantityText}>{feeding.quantity} kg</Text>
+              <Text style={styles.quantityText}>{feeding.quantity}</Text>
+              <Text style={styles.measurementText}>{feeding.measurement}</Text>
             </View>
           ))}
         </View>
@@ -161,6 +163,12 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "right",
   },
+  measurementText: {
+    fontSize: 16,
+    flex: 3,
+    textAlign: "right",
+  },
+
   buttonWrapper: {
     flex: 1, // Occupies approximately 33% of the container
     alignItems: "center", // Centers the button horizontally
