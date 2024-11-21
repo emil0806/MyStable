@@ -26,8 +26,6 @@ const AddHorseModal: React.FC<{
     { food: "", quantity: "", measurement: "" },
   ]);
   const [error, setError] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(null);
 
   useEffect(() => {
     if (horseData) {
@@ -141,6 +139,7 @@ const AddHorseModal: React.FC<{
                 style={styles.feedInput}
                 placeholder="Mængde"
                 value={feeding.quantity}
+                keyboardType="numeric"
                 onChangeText={(value) =>
                   handleFeedingChange(index, "quantity", value)
                 }
